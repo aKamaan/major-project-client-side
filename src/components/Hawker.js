@@ -8,14 +8,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { Nav } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {backendApi, frontendApi} from '../urlConfig'
 
 function Hawker() {
   const user = localStorage.getItem("user");
   const name = localStorage.getItem("name");
-  const [lat,setLat]=useState('');
-  const [long,setLong]=useState('');
   
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -27,34 +25,32 @@ function Hawker() {
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
           (res) => {
-            setLat(res.coords.latitude);
-            setLong(res.coords.longitude);
+            // console.log(res.coords.latitude,res.coords.longitude)
+            const updateLocation = async () => {
+              await fetch(
+                `${backendApi}/hawker/updatelocation`,
+                {
+                  method: "POST",
+                  headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    Authorization: `bearer ${user}`,
+                  },
+                  body:JSON.stringify({lat:res.coords.latitude,long:res.coords.longitude})
+                }
+              );
+            };
+            updateLocation();
           },
           (err) => {
-            setLat("");
-            setLong("");
+            
           }
         );
       } else {
         console.log("location not supprted");
       }
-      const updateLocation = async () => {
-        await fetch(
-          `${backendApi}/hawker/updatelocation`,
-          {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              Authorization: `bearer ${user}`,
-            },
-            body:JSON.stringify({lat,long})
-          }
-        );
-      };
-      updateLocation();
     }
-  },[]);
+  });
   if (user) {
     return (
       <>
