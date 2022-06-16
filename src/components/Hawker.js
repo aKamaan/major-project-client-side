@@ -9,17 +9,20 @@ import {
 import { Link } from "react-router-dom";
 import { Nav } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import {backendApi} from '../urlConfig'
+import {backendApi, frontendApi} from '../urlConfig'
 
 function Hawker() {
   const user = localStorage.getItem("user");
   const name = localStorage.getItem("name");
   const [lat,setLat]=useState('');
   const [long,setLong]=useState('');
+  const remove=(str)=>{
+    return str.slice(0, -4);
+  }
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("name");
-    window.location.assign(`${backendApi}/login`);
+    window.location.assign(`${remove(frontendApi)}/login`);
   };
   useEffect(() => {
     if (user) {
