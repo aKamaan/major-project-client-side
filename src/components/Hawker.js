@@ -16,13 +16,11 @@ function Hawker() {
   const name = localStorage.getItem("name");
   const [lat,setLat]=useState('');
   const [long,setLong]=useState('');
-  const remove=(str)=>{
-    return str.slice(0, -4);
-  }
+  
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("name");
-    window.location.assign(`${remove(frontendApi)}/login`);
+    window.location.assign(`${frontendApi}/login`);
   };
   useEffect(() => {
     if (user) {
