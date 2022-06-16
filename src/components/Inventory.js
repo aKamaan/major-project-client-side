@@ -2,6 +2,7 @@ import { useEffect ,useState} from 'react'
 import { Table,Container,Button,Modal,Form,Row,Col } from 'react-bootstrap';
 import Login from './Login';
 import NavbarHawker from './NavbarHawker';
+import {backendApi} from '../urlConfig'
 
 const Inventory = () => {
     const [deletedItems,setdeletedItems]=useState([]);
@@ -20,7 +21,7 @@ const Inventory = () => {
         if(user){
             const getItems = async ()=>{
                 setLoading(1);
-                const rsp=await fetch('http://localhost:5000/api/hawker/getitem',{
+                const rsp=await fetch(`${backendApi}/hawker/getitem`,{
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
@@ -45,7 +46,7 @@ const Inventory = () => {
         else{
             let items=[];
             items.push({name:str1,price:str2});
-            const rsp=await fetch('http://localhost:5000/api/hawker/additem',{
+            const rsp=await fetch(`${backendApi}/hawker/additem`,{
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
@@ -63,7 +64,7 @@ const Inventory = () => {
     const handleDelete=async ()=>{
         setDisabled(true);
         // console.log(deletedItems)
-        const rsp=await fetch('http://localhost:5000/api/hawker/deleteitem',{
+        const rsp=await fetch(`${backendApi}/hawker/deleteitem`,{
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

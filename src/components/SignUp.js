@@ -3,6 +3,7 @@ import {Button,Form,Alert, Container,Row,Col} from 'react-bootstrap'
 import {Link} from 'react-router-dom'
 import {useState} from 'react'
 import Hawker from './Hawker'
+import {backendApi} from '../urlConfig'
 
 const SignUp = () => {
     const [show,setShow]=useState(0);
@@ -38,7 +39,7 @@ const SignUp = () => {
             lat:lat,
             long:long
         }
-        fetch('http://localhost:5000/api/hawker/signup', {
+        fetch(`${backendApi}/hawker/signup`, {
             method: 'POST',
             headers: {
             'Accept': 'application/json',

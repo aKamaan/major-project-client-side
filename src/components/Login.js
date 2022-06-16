@@ -3,7 +3,7 @@ import {Button,Form,Alert} from 'react-bootstrap'
 import {Link} from 'react-router-dom'
 import {useState} from 'react'
 import Hawker from './Hawker'
-
+import {backendApi,frontendApi} from '../urlConfig'
 
 const Login = (props) => {
 
@@ -19,7 +19,7 @@ const Login = (props) => {
             email:e.target[0].value,
             password:e.target[1].value
         }
-        fetch('http://localhost:5000/api/hawker/signin', {
+        fetch(`${backendApi}/hawker/signin`, {
             method: 'POST',
             headers: {
             'Accept': 'application/json',
@@ -39,7 +39,7 @@ const Login = (props) => {
                 setColor('success');
                 localStorage.setItem('user',data.token);
                 localStorage.setItem('name',data.user.name.split(' ')[0]);
-                window.location.href='http://localhost:5000/hawker';
+                window.location.href=`${frontendApi}/hawker`;
                 window.location.reload();
             }
         });

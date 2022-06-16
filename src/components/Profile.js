@@ -4,6 +4,7 @@ import Login from "../components/Login";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { Modal, Form, Button } from "react-bootstrap";
+import {backendApi} from '../urlConfig'
 
 const Profile = () => {
   const user = localStorage.getItem("user");
@@ -16,7 +17,7 @@ const Profile = () => {
   useEffect(() => {
     if (user) {
       const getInfo = async () => {
-        const rsp = await fetch("http://localhost:5000/api/hawker/profile", {
+        const rsp = await fetch(`${backendApi}/hawker/profile`, {
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -58,7 +59,7 @@ const Profile = () => {
     e.preventDefault();
     if (e.target[0].value === "") alert("Please enter a email");
     else {
-      const rsp = await fetch("http://localhost:5000/api/hawker/updateemail", {
+      const rsp = await fetch(`${backendApi}/hawker/updateemail`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -92,7 +93,7 @@ const Profile = () => {
       alert("Please enter a valid contact");
     else {
       const rsp = await fetch(
-        "http://localhost:5000/api/hawker/updatecontact",
+        `${backendApi}/hawker/updatecontact`,
         {
           method: "POST",
           headers: {
@@ -119,7 +120,7 @@ const Profile = () => {
     if (e.target[0].value === "" || e.target[1].value === "")
       alert("Please enter a address");
     else {
-      const rsp = await fetch("http://localhost:5000/api/hawker/updateaddr", {
+      const rsp = await fetch(`${backendApi}/hawker/updateaddr`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -151,7 +152,7 @@ const Profile = () => {
     if (e.target[0].value === '') alert("Please upload a file first");
     else {
       formData.append("updateProfile", e.target[0].files[0]);
-      const rsp = await fetch("http://localhost:5000/api/hawker/updateimage", {
+      const rsp = await fetch(`${backendApi}/hawker/updateimage`, {
         method: "POST",
         headers: {
           Authorization: `bearer ${user}`,
@@ -168,6 +169,9 @@ const Profile = () => {
      }
     }
   };
+  const remove=(str)=>{
+    return str.slice(0, -4);
+  }
   if (user) {
     return (
       <>
@@ -307,7 +311,7 @@ const Profile = () => {
               <div className="card mb-4">
                 <div className="card-body text-center">
                   <img
-                    src={`http://localhost:5000/${profileInfo.profileimage}`}
+                    src={`${remove(backendApi)}/${profileInfo.profileimage}`}
                     alt="avatar"
                     className="rounded-circle img-fluid"
                     style={{ width: "150px" }}

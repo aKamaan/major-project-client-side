@@ -1,13 +1,13 @@
 import React from 'react'
 import {Navbar,Container,Nav} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
-
+import {frontendApi} from '../urlConfig'
 const NavbarHawker = () => {
     const name=localStorage.getItem('name');
     const handleLogout=()=>{
         localStorage.removeItem('user');
         localStorage.removeItem('name');
-        window.location.assign("http://localhost:5000/login");
+        window.location.assign(`${frontendApi}/login`);
     }
   return (
          <Navbar bg="dark" variant="dark">

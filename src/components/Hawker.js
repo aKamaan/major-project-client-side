@@ -9,6 +9,7 @@ import {
 import { Link } from "react-router-dom";
 import { Nav } from "react-bootstrap";
 import { useEffect, useState } from "react";
+import {backendApi} from '../urlConfig'
 
 function Hawker() {
   const user = localStorage.getItem("user");
@@ -18,7 +19,7 @@ function Hawker() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("name");
-    window.location.assign("http://localhost:3000/login");
+    window.location.assign(`${backendApi}/login`);
   };
   useEffect(() => {
     if (user) {
@@ -38,7 +39,7 @@ function Hawker() {
       }
       const updateLocation = async () => {
         await fetch(
-          "http://localhost:5000/api/hawker/updatelocation",
+          `${backendApi}/hawker/updatelocation`,
           {
             method: "POST",
             headers: {
