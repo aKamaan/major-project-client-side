@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { backendApi } from "../urlConfig";
 import {
   MDBTabs,
@@ -17,21 +17,36 @@ const HawkerCard = (props) => {
   const [basicActive, setBasicActive] = useState("tab1");
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState(0);
+  const [rev,setRev]=useState([]);
 
   const handleBasicClick = (value) => {
     if (value === basicActive) {
       return;
     }
-
     setBasicActive(value);
   };
-  const calcAvg=(sum,len)=>{
-    if(len===0)
-      setRating(0);
-    else
-      setRating((sum/len).toFixed(1));
-    setReview(len);
-  }
+  useEffect(() => {
+    const getRev=async ()=>{
+      const rsp = await fetch(`${backendApi}/hawker/review/${props.data._id}`, {
+        method: "GET",
+      });
+      const data = await rsp.json();
+      // console.log(data);
+      
+      if(data!==null){
+        setRev(data.reviews);
+      }
+    }
+    getRev()
+  }, []);
+  useEffect(()=>{
+    if(rev.length>0){
+      let sum=0;
+      setReview(rev.length);
+      rev.forEach(e=>sum+=e.rating);
+      setRating((sum/rev.length).toFixed(1));
+    }
+  },[rev])
   return (
     <>
       <div className="col-sm-12 col-md-4" key={props.data._id.toString()}>
@@ -39,7 +54,7 @@ const HawkerCard = (props) => {
           <div className="mainflip flip-0">
             <div
               className="frontside "
-              style={{ width: "100%", height: "100%" }}
+              style={{ width: "100%"}}
             >
               <div className="card">
                 <div className="card-body text-center">
@@ -102,24 +117,24 @@ const HawkerCard = (props) => {
                     <MDBTabsPane show={basicActive === "tab1"}>
                       <div className="container px-1 mt-1">
                       <div className="row">
-                          <div className="col-sm-3">
+                          <div className="col-md-3 col-3">
                             <p className="mb-0">Rating</p>
                           </div>
-                          <div className="col-sm-4">
+                          <div className="col-md-4 col-4">
                             {
-                              rating===0?(<p className="text-muted mb-0">No reviews
+                              review===0?(<p className="text-muted mb-0">No reviews
                               </p>):<p className="text-muted mb-0">
                                 {rating}/5 star
                             </p>
                             }
                             
                           </div>
-                          <div className="col-sm-3">
+                          <div className="col-md-3 col-3">
                             <p className="mb-0">
                               Reviews
                             </p>
                           </div>
-                          <div className="col-sm-2">
+                          <div className="col-md-2 col-2">
                             <p className="text-muted mb-0">
                               {review}
                             </p>
@@ -128,21 +143,21 @@ const HawkerCard = (props) => {
                         </div>
                         <hr/>
                         <div className="row">
-                          <div className="col-sm-3">
+                          <div className="col-sm-3 col-3">
                             <p className="mb-0">Email</p>
                           </div>
-                          <div className="col-sm-9">
+                          <div className="col-sm-9 col-9">
                             <p className="text-muted mb-0">
                               {props.data.email}
                             </p>
                           </div>
                         </div>
-                        <hr />
+                        <hr/>
                         <div className="row">
-                          <div className="col-sm-3">
+                          <div className="col-sm-3 col-3">
                             <p className="mb-0">Phone</p>
                           </div>
-                          <div className="col-sm-9">
+                          <div className="col-sm-9 col-9">
                             <p className="text-muted mb-0">
                               {props.data.contact}
                             </p>
@@ -151,10 +166,10 @@ const HawkerCard = (props) => {
                         <hr />
 
                         <div className="row">
-                          <div className="col-sm-3">
+                          <div className="col-sm-3 col-3">
                             <p className="mb-0">Address</p>
                           </div>
-                          <div className="col-sm-9">
+                          <div className="col-sm-9 col-9">
                             <p
                               className="text-muted mb-0"
                               style={{ textTransform: "capitalize" }}
@@ -177,7 +192,7 @@ const HawkerCard = (props) => {
                       </div>
                     </MDBTabsPane>
                     <MDBTabsPane show={basicActive === "tab2"}>
-                      <HawkerRev id={props.data._id} username={props.username} token={props.token} getRatRev={(sum,len)=>calcAvg(sum,len)}/>
+                      <HawkerRev id={props.data._id} username={props.username} token={props.token} rev={rev} updateRev={(r)=>setRev(r)}/>
                     </MDBTabsPane>
                     <MDBTabsPane show={basicActive === "tab3"}>
                       <HawkerInv id={props.data._id} />

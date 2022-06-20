@@ -2,39 +2,25 @@ import React, { useEffect, useState } from "react";
 import { backendApi } from "../urlConfig";
 import { Modal, Form, Button } from "react-bootstrap";
 
-const HawkerRev = (props) => {
-  const [rev, setRev] = useState([]);
+const HawkerRev = ({id,username,token,rev,updateRev}) => {
+  
   const [disable, setDisable] = useState(1);
   const [showReviewModal, setShowReviewModal] = useState(0);
   useEffect(() => {
-    if (props.username === "") setDisable(1);
+    if (username === "") setDisable(1);
     else setDisable(0);
-  }, [props.username]);
-  useEffect(() => {
-    const getRev = async () => {
-      const rsp = await fetch(`${backendApi}/hawker/review/${props.id}`, {
-        method: "GET",
-      });
-      const data = await rsp.json();
-      if (data === null) setRev([]);
-      else setRev(data.reviews);
-      let sum=0;
-      rev.forEach(e=>sum+=e.rating);
-      // console.log(sum);
-      props.getRatRev(sum,rev.length);
-    };
-    getRev();
-  }, [props,rev]);
+  }, [username]);
+
   const submitRev = (e) => {
     e.preventDefault();
     // console.log(parseInt(e.target[0].value), e.target[1].value);
     const post = async () => {
-      const rsp = await fetch(`${backendApi}/hawker/postreview/${props.id}`, {
+      const rsp=await fetch(`${backendApi}/hawker/postreview/${id}`, {
         method:'POST',
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `bearer ${props.token}`,
+          Authorization: `bearer ${token}`,
         },
         body: JSON.stringify({
           rating: parseInt(e.target[0].value),
@@ -42,7 +28,7 @@ const HawkerRev = (props) => {
         })
       });
       const data=await rsp.json();
-      setRev(data.reviews)
+      updateRev(data.reviews);
     };
     post();
   };
@@ -98,7 +84,7 @@ const HawkerRev = (props) => {
             return (
               <div
                 className="list-group-item list-group-item-action flex-column align-items-start"
-                key={i}
+                key={e._id}
               >
                 <div className="d-flex w-100 justify-content-between">
                   <h5 className="mb-1" style={{ fontSize: "0.9rem" }}>

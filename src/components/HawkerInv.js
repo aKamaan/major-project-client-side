@@ -12,7 +12,7 @@ const HawkerInv = (props) => {
       if (data.inv) setInv(data.inv.items);
     };
     getInv();
-  }, [inv]);
+  }, []);
 
   return (
     <>
