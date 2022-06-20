@@ -314,7 +314,7 @@ const Profile = () => {
                     src={`${remove(backendApi)}/${profileInfo.profileimage}`}
                     alt="avatar"
                     className="rounded-circle img-fluid"
-                    style={{ width: "150px" }}
+                    style={{ width: "150px",height:'150px' }}
                   />
                   <h5 className="my-3" style={{ textTransform: "capitalize" }}>
                     {profileInfo.name}
