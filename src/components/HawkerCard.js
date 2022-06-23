@@ -10,7 +10,7 @@ import {
 import HawkerInv from "./HawkerInv";
 import HawkerRev from './HawkerRev'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPhone } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faPhone } from "@fortawesome/free-solid-svg-icons";
 
 const HawkerCard = (props) => {
   const remove = (str) => str.slice(0, -4);
@@ -18,7 +18,39 @@ const HawkerCard = (props) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState(0);
   const [rev,setRev]=useState([]);
-
+  const [dis,setDis]=useState(1);
+  useEffect(()=>{
+    // console.log(props.fav)
+    if(props.fav.length>0){
+      props.fav.forEach(e=>{
+        document.getElementById(e._id.toString()).classList.add('deletefav');
+      })
+    }
+  },[props.fav])
+  useEffect(()=>{
+    if(props.username===''){
+      let favBtn=document.getElementById(props.data._id);
+      if(favBtn.classList.contains('deletefav'))
+        favBtn.classList.remove('deletefav');
+      favBtn.style.opacity=0.5;
+      setDis(1);
+    }
+    else{
+      let favBtn=document.getElementById(props.data._id);
+      favBtn.style.opacity=1;
+      setDis(0);
+    }
+  },[props.username])
+  const toggleFav=event=>{
+    let favBtn=document.getElementById(event.currentTarget.id);
+    if(favBtn.classList.contains('deletefav')){
+      favBtn.classList.remove('deletefav');
+      props.delfav(event.currentTarget.id);
+    }else{
+      // favBtn.classList.toggle('deletefav');
+      props.addfav(event.currentTarget.id);
+    }
+  }
   const handleBasicClick = (value) => {
     if (value === basicActive) {
       return;
@@ -178,15 +210,25 @@ const HawkerCard = (props) => {
                             </p>
                           </div>
                         </div>
-                        <div className="row my-1">
-                          <div className="col-md-2">
+                        <div className="row my-1 d-flex flex-row-reverse">
+                          <div className="col-md-2 col-2">
                             <a
                               className="btn btn-primary btn-xlg"
                               href={`tel:${props.data.contact}`}
-                              style={{backgroundColor:"rgba(0,0,238,.5)"}}
+                              style={{backgroundColor:"rgba(0,0,238,1)"}}
                             >
                              <FontAwesomeIcon icon={faPhone}></FontAwesomeIcon>
                             </a>
+                          </div>
+                          <div className="col-md-2 col-2">
+                            <button
+                              className="mybtn"
+                              id={props.data._id.toString()}
+                              onClick={toggleFav}
+                              disabled={dis}
+                            >
+                             <FontAwesomeIcon icon={faHeart}></FontAwesomeIcon>
+                            </button>
                           </div>
                         </div>
                       </div>

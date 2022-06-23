@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
+import {Link} from 'react-router-dom'
 import { backendApi } from "../urlConfig";
 
 const UserNavbar = (props) => {
@@ -179,21 +180,21 @@ const UserNavbar = (props) => {
           </>
         ) : (
           <>
-            <a className="navbar-brand" href="/">
+            <Link className="navbar-brand" to="/user">
               {props.username}
-            </a>
+            </Link>
 
             <div className="navbar-collapse d-flex justify-content-between">
               <ul className="navbar-nav mr-auto">
-                <li className="nav-item active">
-                  <a className="nav-link" href="/">
-                    Profile
-                  </a>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/user/userfav">
+                    Favorites
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="/">
-                    Favorites
-                  </a>
+                  <Link className="nav-link" to="/user/about">
+                    About
+                  </Link>
                 </li>
               </ul>
               

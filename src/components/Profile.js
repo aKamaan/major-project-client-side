@@ -4,16 +4,18 @@ import Login from "../components/Login";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { Modal, Form, Button } from "react-bootstrap";
-import {backendApi} from '../urlConfig'
+import { backendApi } from "../urlConfig";
 
 const Profile = () => {
   const user = localStorage.getItem("user");
+  const [hid,setHid]=useState('');
   const [profileInfo, setProfileInfo] = useState({});
   const [showEmailModal, setshowEmailModal] = useState(0);
   const [showContactModal, setshowContactModal] = useState(0);
   const [showAddressModal, setshowAddressModal] = useState(0);
   const [showProfileImageModal, setshowProfileImageModal] = useState(0);
   const [op, setOp] = useState(0);
+  const [rev, setRev] = useState([]);
   useEffect(() => {
     if (user) {
       const getInfo = async () => {
@@ -27,6 +29,7 @@ const Profile = () => {
         });
         const data = await rsp.json();
         setProfileInfo(data);
+        setHid(data._id)
         // console.log(profileInfo)
       };
       getInfo();
@@ -53,7 +56,8 @@ const Profile = () => {
   const handleEmailModal = () => setshowEmailModal(!showEmailModal);
   const handleContactModal = () => setshowContactModal(!showContactModal);
   const handleAddressModal = () => setshowAddressModal(!showAddressModal);
-  const handleProfileImageModal = () => setshowProfileImageModal(!showProfileImageModal);
+  const handleProfileImageModal = () =>
+    setshowProfileImageModal(!showProfileImageModal);
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
@@ -70,13 +74,12 @@ const Profile = () => {
       });
       const data = await rsp.json();
       // console.log(data);
-      if (data.ok){ 
-        setProfileInfo(prevState=>({
+      if (data.ok) {
+        setProfileInfo((prevState) => ({
           ...prevState,
-          email:data.data.email
-        }))
-      }
-      else alert(data.message);
+          email: data.data.email,
+        }));
+      } else alert(data.message);
     }
   };
   const checkChar = (str) => {
@@ -92,27 +95,23 @@ const Profile = () => {
     if (str === "" || str.length !== 10 || checkChar(str))
       alert("Please enter a valid contact");
     else {
-      const rsp = await fetch(
-        `${backendApi}/hawker/updatecontact`,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: `bearer ${user}`,
-          },
-          body: JSON.stringify({ contact: str }),
-        }
-      );
+      const rsp = await fetch(`${backendApi}/hawker/updatecontact`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `bearer ${user}`,
+        },
+        body: JSON.stringify({ contact: str }),
+      });
       const data = await rsp.json();
       // console.log(data);
-      if (data.ok){ 
-        setProfileInfo(prevState=>({
+      if (data.ok) {
+        setProfileInfo((prevState) => ({
           ...prevState,
-          contact:data.data.contact
-        }))
-      }
-      else alert(data.message);
+          contact: data.data.contact,
+        }));
+      } else alert(data.message);
     }
   };
   const handleAddressSubmit = async (e) => {
@@ -134,22 +133,21 @@ const Profile = () => {
       });
       const data = await rsp.json();
       // console.log(data);
-      if (data.ok){ 
-        setProfileInfo(prevState=>({
+      if (data.ok) {
+        setProfileInfo((prevState) => ({
           ...prevState,
-          locality:data.data.locality,
-          city:data.data.city
-        }))
-      }
-      else alert(data.message);
+          locality: data.data.locality,
+          city: data.data.city,
+        }));
+      } else alert(data.message);
     }
   };
- 
+
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
     // console.log(e.target[0].files[0]);
-    if (e.target[0].value === '') alert("Please upload a file first");
+    if (e.target[0].value === "") alert("Please upload a file first");
     else {
       formData.append("updateProfile", e.target[0].files[0]);
       const rsp = await fetch(`${backendApi}/hawker/updateimage`, {
@@ -161,17 +159,31 @@ const Profile = () => {
       });
       const data = await rsp.json();
       // console.log(data);
-      if (data.ok){ 
-        setProfileInfo(prevState=>({
+      if (data.ok) {
+        setProfileInfo((prevState) => ({
           ...prevState,
-          profileimage:data.data.profileimage
+          profileimage: data.data.profileimage,
         }));
-     }
+      }
     }
   };
-  const remove=(str)=>{
+  useEffect(() => {
+    const getRev = async () => {
+      const rsp = await fetch(`${backendApi}/hawker/review/${hid}`, {
+        method: "GET",
+      });
+      const data = await rsp.json();
+      // console.log(data);
+
+      if (data !== null) {
+        setRev(data.reviews);
+      }
+    };
+    getRev();
+  }, [hid]);
+  const remove = (str) => {
     return str.slice(0, -4);
-  }
+  };
   if (user) {
     return (
       <>
@@ -314,7 +326,7 @@ const Profile = () => {
                     src={`${remove(backendApi)}/${profileInfo.profileimage}`}
                     alt="avatar"
                     className="rounded-circle img-fluid"
-                    style={{ width: "150px",height:'150px' }}
+                    style={{ width: "150px", height: "150px" }}
                   />
                   <h5 className="my-3" style={{ textTransform: "capitalize" }}>
                     {profileInfo.name}
@@ -431,41 +443,36 @@ const Profile = () => {
                   >
                     Reviews
                   </h4>
-                  <hr />
-                  <ul className="list-group list-group-flush rounded-3">
-                    <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                      <i className="fas fa-globe fa-lg text-warning"></i>
-                      <p className="mb-0">https://mdbootstrap.com</p>
-                    </li>
-                    <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                      <i
-                        className="fab fa-github fa-lg"
-                        style={{ color: "#333333" }}
-                      ></i>
-                      <p className="mb-0">mdbootstrap</p>
-                    </li>
-                    <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                      <i
-                        className="fab fa-twitter fa-lg"
-                        style={{ color: "#55acee" }}
-                      ></i>
-                      <p className="mb-0">@mdbootstrap</p>
-                    </li>
-                    <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                      <i
-                        className="fab fa-instagram fa-lg"
-                        style={{ color: "#ac2bac" }}
-                      ></i>
-                      <p className="mb-0">mdbootstrap</p>
-                    </li>
-                    <li className="list-group-item d-flex justify-content-between align-items-center p-3">
-                      <i
-                        className="fab fa-facebook-f fa-lg"
-                        style={{ color: "#3b5998" }}
-                      ></i>
-                      <p className="mb-0">mdbootstrap</p>
-                    </li>
-                  </ul>
+                  {/* <hr style={{margin:'0'}}/> */}
+                  {rev.length === 0 ? (
+                    <div className="list-group reviewH">
+                      <h5>No reviews</h5>
+                    </div>
+                  ) : (
+                    <div className="list-group reviewH">
+                      {rev.map((e, i) => {
+                        return (
+                          <div
+                            className="list-group-item list-group-item-action flex-column align-items-start"
+                            key={e._id}
+                          >
+                            <div className="d-flex w-100 justify-content-between">
+                              <h5
+                                className="mb-1"
+                                style={{ fontSize: "0.9rem" }}
+                              >
+                                Rating : {e.rating} star
+                              </h5>
+                            </div>
+                            <p className="mb-1">{e.review}</p>
+                            <small>
+                              -<i>{e.name}</i>
+                            </small>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -474,7 +481,6 @@ const Profile = () => {
       </>
     );
   } else return <Login />;
-
 };
 
 export default Profile;

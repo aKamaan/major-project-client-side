@@ -16,6 +16,7 @@ const NavbarHawker = () => {
             <Nav className="me-auto">
               <Nav.Link><Link to="/hawker/profile" style={{"textDecoration":"none","color":"grey"}}>Profile</Link></Nav.Link>
               <Nav.Link><Link to="/hawker/inventory" style={{"textDecoration":"none","color":"grey"}}>Inventory</Link></Nav.Link>
+              <Nav.Link><Link to="/hawker/about" style={{"textDecoration":"none","color":"grey"}}>About</Link></Nav.Link>
               <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
             </Nav>
             </Container>

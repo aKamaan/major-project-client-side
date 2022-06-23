@@ -12,26 +12,32 @@ const HawkerRev = ({id,username,token,rev,updateRev}) => {
   }, [username]);
 
   const submitRev = (e) => {
-    e.preventDefault();
-    // console.log(parseInt(e.target[0].value), e.target[1].value);
-    const post = async () => {
-      const rsp=await fetch(`${backendApi}/hawker/postreview/${id}`, {
-        method:'POST',
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `bearer ${token}`,
-        },
-        body: JSON.stringify({
-          rating: parseInt(e.target[0].value),
-          review: e.target[1].value,
-        })
-      });
-      const data=await rsp.json();
-      updateRev(data.reviews);
-    };
-    post();
+      e.preventDefault();
+      // console.log(parseInt(e.target[0].value), e.target[1].value);
+      if(e.target[0].value && e.target[1].value){
+          const post = async () => {
+            const rsp=await fetch(`${backendApi}/hawker/postreview/${id}`, {
+              method:'POST',
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: `bearer ${token}`,
+              },
+              body: JSON.stringify({
+                rating: parseInt(e.target[0].value),
+                review: e.target[1].value,
+              })
+            });
+            const data=await rsp.json();
+            updateRev(data.reviews);
+        }
+        post();
+      }
+      else{
+        alert('Please give a review then add..')
+      } 
   };
+
   return (
     <>
       <Modal
