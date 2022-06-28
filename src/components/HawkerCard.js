@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { backendApi } from "../urlConfig";
 import {
   MDBTabs,
@@ -8,7 +8,7 @@ import {
   MDBTabsPane,
 } from "mdb-react-ui-kit";
 import HawkerInv from "./HawkerInv";
-import HawkerRev from './HawkerRev'
+import HawkerRev from "./HawkerRev";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faPhone } from "@fortawesome/free-solid-svg-icons";
 
@@ -17,40 +17,39 @@ const HawkerCard = (props) => {
   const [basicActive, setBasicActive] = useState("tab1");
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState(0);
-  const [rev,setRev]=useState([]);
-  const [dis,setDis]=useState(1);
-  useEffect(()=>{
-    // console.log(props.fav)
-    if(props.fav.length>0){
-      props.fav.forEach(e=>{
-        document.getElementById(e._id.toString()).classList.add('deletefav');
-      })
+  const [rev, setRev] = useState([]);
+  const [dis, setDis] = useState(1);
+
+
+
+  useEffect(() => {
+    if (props.username === "") {
+      let favBtn = document.getElementsByClassName("mybtn");
+      Array.from(favBtn).forEach((e) => {
+        if (e.classList.contains("deletefav")) e.classList.remove("deletefav");
+        e.style.opacity = 0.5;
+        setDis(1);
+      });
+    } else {
+      let favBtn = document.getElementsByClassName("mybtn");
+      Array.from(favBtn).forEach((e) => {
+        e.style.opacity = 1;
+        setDis(0);
+      });
+      if(props.favid.includes(props.data._id.toString())){
+        document.getElementById(props.data._id.toString()).classList.add('deletefav')
+      }
     }
-  },[props.fav])
-  useEffect(()=>{
-    if(props.username===''){
-      let favBtn=document.getElementById(props.data._id);
-      if(favBtn.classList.contains('deletefav'))
-        favBtn.classList.remove('deletefav');
-      favBtn.style.opacity=0.5;
-      setDis(1);
-    }
-    else{
-      let favBtn=document.getElementById(props.data._id);
-      favBtn.style.opacity=1;
-      setDis(0);
-    }
-  },[props.username])
-  const toggleFav=event=>{
-    let favBtn=document.getElementById(event.currentTarget.id);
-    if(favBtn.classList.contains('deletefav')){
-      favBtn.classList.remove('deletefav');
+  }, [props.username]);
+  const toggleFav = (event) => {
+    let favBtn = document.getElementById(event.currentTarget.id);
+    if (favBtn.classList.contains("deletefav")) {
+      favBtn.classList.remove("deletefav");
       props.delfav(event.currentTarget.id);
-    }else{
-      // favBtn.classList.toggle('deletefav');
+    } else {
       props.addfav(event.currentTarget.id);
     }
-  }
+  };
   const handleBasicClick = (value) => {
     if (value === basicActive) {
       return;
@@ -58,36 +57,32 @@ const HawkerCard = (props) => {
     setBasicActive(value);
   };
   useEffect(() => {
-    const getRev=async ()=>{
+    const getRev = async () => {
       const rsp = await fetch(`${backendApi}/hawker/review/${props.data._id}`, {
         method: "GET",
       });
       const data = await rsp.json();
-      // console.log(data);
-      
-      if(data!==null){
+
+      if (data !== null) {
         setRev(data.reviews);
       }
-    }
-    getRev()
-  }, []);
-  useEffect(()=>{
-    if(rev.length>0){
-      let sum=0;
+    };
+    getRev();
+  }, [props.data._id]);
+  useEffect(() => {
+    if (rev.length > 0) {
+      let sum = 0;
       setReview(rev.length);
-      rev.forEach(e=>sum+=e.rating);
-      setRating((sum/rev.length).toFixed(1));
+      rev.forEach((e) => (sum += e.rating));
+      setRating((sum / rev.length).toFixed(1));
     }
-  },[rev])
+  }, [rev]);
   return (
     <>
-      <div className="col-sm-12 col-md-4" key={props.data._id.toString()}>
+      <div className="col-sm-12 col-md-4">
         <div className="image-flip">
           <div className="mainflip flip-0">
-            <div
-              className="frontside "
-              style={{ width: "100%"}}
-            >
+            <div className="frontside " style={{ width: "100%" }}>
               <div className="card">
                 <div className="card-body text-center">
                   <img
@@ -148,32 +143,25 @@ const HawkerCard = (props) => {
                   <MDBTabsContent>
                     <MDBTabsPane show={basicActive === "tab1"}>
                       <div className="container px-1 mt-1">
-                      <div className="row">
+                        <div className="row">
                           <div className="col-md-3 col-3">
                             <p className="mb-0">Rating</p>
                           </div>
                           <div className="col-md-4 col-4">
-                            {
-                              review===0?(<p className="text-muted mb-0">No reviews
-                              </p>):<p className="text-muted mb-0">
-                                {rating}/5 star
-                            </p>
-                            }
-                            
+                            {review === 0 ? (
+                              <p className="text-muted mb-0">No reviews</p>
+                            ) : (
+                              <p className="text-muted mb-0">{rating}/5 star</p>
+                            )}
                           </div>
                           <div className="col-md-3 col-3">
-                            <p className="mb-0">
-                              Reviews
-                            </p>
+                            <p className="mb-0">Reviews</p>
                           </div>
                           <div className="col-md-2 col-2">
-                            <p className="text-muted mb-0">
-                              {review}
-                            </p>
+                            <p className="text-muted mb-0">{review}</p>
                           </div>
-              
                         </div>
-                        <hr/>
+                        <hr />
                         <div className="row">
                           <div className="col-sm-3 col-3">
                             <p className="mb-0">Email</p>
@@ -184,7 +172,7 @@ const HawkerCard = (props) => {
                             </p>
                           </div>
                         </div>
-                        <hr/>
+                        <hr />
                         <div className="row">
                           <div className="col-sm-3 col-3">
                             <p className="mb-0">Phone</p>
@@ -215,29 +203,47 @@ const HawkerCard = (props) => {
                             <a
                               className="btn btn-primary btn-xlg"
                               href={`tel:${props.data.contact}`}
-                              style={{backgroundColor:"rgba(0,0,238,1)"}}
+                              style={{ backgroundColor: "rgba(0,0,238,1)" }}
                             >
-                             <FontAwesomeIcon icon={faPhone}></FontAwesomeIcon>
+                              <FontAwesomeIcon icon={faPhone}></FontAwesomeIcon>
                             </a>
                           </div>
                           <div className="col-md-2 col-2">
-                            <button
-                              className="mybtn"
-                              id={props.data._id.toString()}
-                              onClick={toggleFav}
-                              disabled={dis}
-                            >
-                             <FontAwesomeIcon icon={faHeart}></FontAwesomeIcon>
-                            </button>
+                            {
+                              props.favid.includes(props.data._id.toString())?(
+
+                                <button
+                                  className="mybtn deletefav"
+                                  id={props.data._id.toString()}
+                                  onClick={toggleFav}
+                                  disabled={dis}
+                                >
+                                  <FontAwesomeIcon icon={faHeart}></FontAwesomeIcon>
+                                </button>
+                              ):(<button
+                                className="mybtn"
+                                id={props.data._id.toString()}
+                                onClick={toggleFav}
+                                disabled={dis}
+                              >
+                                <FontAwesomeIcon icon={faHeart}></FontAwesomeIcon>
+                              </button>)
+                            }
                           </div>
                         </div>
                       </div>
                     </MDBTabsPane>
                     <MDBTabsPane show={basicActive === "tab2"}>
-                      <HawkerRev id={props.data._id} username={props.username} token={props.token} rev={rev} updateRev={(r)=>setRev(r)}/>
+                      <HawkerRev
+                        id1={props.data._id}
+                        username={props.username}
+                        token={props.token}
+                        rev={rev}
+                        updateRev={(r) => setRev(r)}
+                      />
                     </MDBTabsPane>
                     <MDBTabsPane show={basicActive === "tab3"}>
-                      <HawkerInv id={props.data._id} />
+                      <HawkerInv id2={props.data._id} />
                     </MDBTabsPane>
                   </MDBTabsContent>
                 </div>

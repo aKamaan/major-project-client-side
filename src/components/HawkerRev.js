@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { backendApi } from "../urlConfig";
 import { Modal, Form, Button } from "react-bootstrap";
 
-const HawkerRev = ({id,username,token,rev,updateRev}) => {
+const HawkerRev = ({id1,username,token,rev,updateRev}) => {
   
   const [disable, setDisable] = useState(1);
   const [showReviewModal, setShowReviewModal] = useState(0);
@@ -16,7 +16,7 @@ const HawkerRev = ({id,username,token,rev,updateRev}) => {
       // console.log(parseInt(e.target[0].value), e.target[1].value);
       if(e.target[0].value && e.target[1].value){
           const post = async () => {
-            const rsp=await fetch(`${backendApi}/hawker/postreview/${id}`, {
+            const rsp=await fetch(`${backendApi}/hawker/postreview/${id1}`, {
               method:'POST',
               headers: {
                 Accept: "application/json",
@@ -90,7 +90,7 @@ const HawkerRev = ({id,username,token,rev,updateRev}) => {
             return (
               <div
                 className="list-group-item list-group-item-action flex-column align-items-start"
-                key={e._id}
+                key={i}
               >
                 <div className="d-flex w-100 justify-content-between">
                   <h5 className="mb-1" style={{ fontSize: "0.9rem" }}>

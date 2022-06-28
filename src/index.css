@@ -248,12 +248,34 @@ tbody::-webkit-scrollbar-thumb {
   font-size: 1rem;
   border-radius: 0.25rem;
   background-color: transparent;
-  color: #dc3545;
-  border-color: #dc3545;
+  color: red;
+  border-color: red;
 }
 
 .deletefav {
-  background-color: #dc3545;
+  background-color: red;
   color: white;
-  border-color: #dc3545;
+  border-color: red;
+}
+
+.dropdown-basic{
+  border-radius: 0;
+  
+}
+
+.lgbtn:hover{
+  background-color: rgb(241, 97, 97);
+  color:white
+}
+#dd1{
+  border-radius: 5px 0 0 5px;
+}
+#ddl{
+  border-radius: 0px 5px 5px 0px;
+}
+
+.badge input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  clip-path: circle(38% at 50% 50%);
 }

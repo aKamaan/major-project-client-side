@@ -1,6 +1,8 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch,faTimes } from "@fortawesome/free-solid-svg-icons";
 import React, { useState } from "react";
-import { Modal, Button, Form, Alert } from "react-bootstrap";
-import {Link} from 'react-router-dom'
+import { Modal, Button, Form, Alert, Dropdown } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { backendApi } from "../urlConfig";
 
 const UserNavbar = (props) => {
@@ -8,7 +10,38 @@ const UserNavbar = (props) => {
   const [showSignup, setShowSignup] = useState(0);
   const [show, setShow] = useState(0);
   const [alert, setAlert] = useState("");
-
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const ele = document.getElementsByClassName("cbcat");
+    if (e.target[0].value !== "") {
+      let catArr = [];
+      Array.from(ele).forEach((e) => {
+        if (e.checked) catArr.push(e.value);
+      });
+      const postSearch = async () => {
+        props.changeLoad(1);
+        const rsp = await fetch(`${backendApi}/hawker/search`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            item: e.target[0].value,
+            cat: catArr,
+          }),
+        });
+        const data = await rsp.json();
+        if (data.ok) {
+          props.changeLoad(0);
+          props.search(data.ans);
+        }
+      };
+      postSearch();
+    } else {
+      window.alert("Please enter some value");
+    }
+  };
   const handleLogin = (e) => {
     e.preventDefault();
     const login = async () => {
@@ -32,6 +65,9 @@ const UserNavbar = (props) => {
       } else {
         setShow(1);
         setAlert(data.error);
+        setTimeout(() => {
+          setShow(0);
+        }, 2000);
       }
     };
     login();
@@ -49,8 +85,8 @@ const UserNavbar = (props) => {
           email: e.target[0].value,
           password: e.target[1].value,
           name: e.target[2].value,
-          lat:'',
-          long:''
+          lat: "",
+          long: "",
         }),
       });
       const data = await rsp.json();
@@ -61,6 +97,9 @@ const UserNavbar = (props) => {
       } else {
         setShow(1);
         setAlert(data.error);
+        setTimeout(() => {
+          setShow(0);
+        }, 2000);
       }
       // console.log(data);
     };
@@ -68,10 +107,13 @@ const UserNavbar = (props) => {
   };
   const renderAlert = () => {
     if (show) {
+      // setShow(0);
       return (
-        <Alert variant="danger" onClose={() => setShow(0)} dismissible>
-          {alert}
-        </Alert>
+        <>
+          <Alert variant="danger" onClose={() => setShow(0)} dismissible>
+            {alert}
+          </Alert>
+        </>
       );
     } else return <div></div>;
   };
@@ -80,6 +122,25 @@ const UserNavbar = (props) => {
     localStorage.removeItem("userToken");
     props.changeUser("", "");
   };
+
+  const filtCat = () => {
+    const arr = document.getElementsByClassName("cbcat");
+    props.changeCat(Array.from(arr));
+  };
+  const handleClear=(e)=>{
+    // let ele=document.getElementById('clr-icon')
+    let eleBtn=document.getElementById('clr-btn')
+    let str=e.target.value;
+    // console.log(str.length);
+    if(str.length===0){
+      eleBtn.disabled=true;
+      // ele.style.opacity=0;
+    }
+    else{
+      eleBtn.disabled=false;
+      // ele.style.opacity=1;
+    }
+  }
   return (
     <>
       <Modal
@@ -102,9 +163,18 @@ const UserNavbar = (props) => {
               <Form.Label>Password</Form.Label>
               <Form.Control type="password" placeholder="Enter you password" />
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button variant="success" type="submit">
               Login
             </Button>
+            <button
+              className="btn btn-primary mx-1"
+              onClick={() => {
+                setShowSignup(!showSignup);
+                setShowLogin(!showLogin);
+              }}
+            >
+              Create Account...
+            </button>
           </Form>
         </Modal.Body>
       </Modal>
@@ -122,15 +192,15 @@ const UserNavbar = (props) => {
         <Modal.Body>
           {renderAlert()}
           <Form onSubmit={handleSignup}>
-            <Form.Group className="mb-3" controlId="formBasic1">
+            <Form.Group className="mb-3" controlId="formBasic3">
               <Form.Label>Email</Form.Label>
               <Form.Control type="email" placeholder="Enter your email" />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasic2">
+            <Form.Group className="mb-3" controlId="formBasic4">
               <Form.Label>Password</Form.Label>
               <Form.Control type="password" placeholder="Enter you password" />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasic2">
+            <Form.Group className="mb-3" controlId="formBasic5">
               <Form.Label>Name</Form.Label>
               <Form.Control type="text" placeholder="Enter you name" />
             </Form.Group>
@@ -140,78 +210,223 @@ const UserNavbar = (props) => {
           </Form>
         </Modal.Body>
       </Modal>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light px-5">
-        {props.username === "" ? (
-          <>
-            <div className=" navbar-collapse d-flex justify-content-between">
-              <form className="form-inline my-2 my-lg-0 d-flex">
-                <input
-                  className="form-control mr-sm-2"
-                  type="search"
-                  placeholder="Search"
-                  aria-label="Search"
-                />
+      <div className="container fluid mt-4">
+        <div className="d-flex flex-row bd-highlight mb-3">
+          <div className=" bd-highlight">
+            {props.username === "" ? (
+              <button
+                className="btn btn-success"
+                onClick={() => setShowLogin(!showLogin)}
+                style={{ borderRadius: " 5px 0 0 5px" }}
+              >
+                Login
+              </button>
+            ) : (
+              <div className="dropdown">
                 <button
-                  className="btn btn-outline-success my-2 my-sm-0 mx-2"
-                  type="submit"
+                  className="btn btn-success dropdown-toggle"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  style={{ borderRadius: " 5px 0 0 5px" }}
                 >
-                  Search
+                  {props.username}
                 </button>
-              </form>
-              <ul className="navbar-nav">
-                <li className="nav-item mx-3">
-                  <button
-                    className="btn btn-outline-success"
-                    onClick={() => setShowLogin(!showLogin)}
-                  >
-                    Login
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className="btn btn-outline-primary"
-                    onClick={() => setShowSignup(!showSignup)}
-                  >
-                    Sign Up
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </>
-        ) : (
-          <>
-            <Link className="navbar-brand" to="/user">
-              {props.username}
-            </Link>
 
-            <div className="navbar-collapse d-flex justify-content-between">
-              <ul className="navbar-nav mr-auto">
-                <li className="nav-item">
-                  <Link className="nav-link" to="/user/userfav">
+                <div
+                  className="dropdown-menu"
+                  aria-labelledby="dropdownMenuButton"
+                >
+                  <Link
+                    className="dropdown-item"
+                    to="/user"
+                    style={{
+                      textDecoration: "none",
+                      color: "black",
+                      padding: "5px 17px",
+                    }}
+                  >
+                    Home
+                  </Link>
+
+                  <button
+                    className="dropdown-item btn"
+                    style={{ borderRadius: " 0" }}
+                  >
+                    Change Email
+                  </button>
+                  <button
+                    className="dropdown-item btn"
+                    style={{ borderRadius: " 0" }}
+                  >
+                    Change Password
+                  </button>
+                  <Link
+                    className="dropdown-item"
+                    to="/user/userfav"
+                    style={{
+                      textDecoration: "none",
+                      color: "black",
+                      padding: "5px 17px",
+                    }}
+                  >
                     Favorites
                   </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/user/about">
+                  <Link
+                    className="dropdown-item"
+                    to="/user/about"
+                    style={{
+                      textDecoration: "none",
+                      color: "black",
+                      padding: "5px 17px",
+                    }}
+                  >
                     About
                   </Link>
-                </li>
-              </ul>
-              
-              <ul className="navbar-nav mr-auto">
-                <li className="nav-item">
+                  <hr style={{ margin: "0.3rem 0" }} />
                   <button
-                    className="btn btn-outline-danger"
+                    className="dropdown-item btn lgbtn"
                     onClick={handleLogout}
+                    style={{ borderRadius: " 0" }}
                   >
                     Logout
                   </button>
-                </li>
-              </ul>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className=" bd-highlight" style={{ minWidth: "11.5rem" }}>
+            <div className="dropdown">
+              <button
+                className="btn btn-primary dropdown-toggle"
+                type="button"
+                id="dropdownMenuButton"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                style={{ borderRadius: " 0", width: "100%" }}
+              >
+                Choose Category
+              </button>
+
+              <div
+                className="dropdown-menu"
+                aria-labelledby="dropdownMenuButton"
+                id="dm2"
+              >
+                <ul className="list-group list-group-flush">
+                  <li className="list-group-item d-flex justify-content-between align-items-center">
+                    <label htmlFor="fs">Fruit Seller</label>
+                    <span className="badge">
+                      <input
+                        type="checkbox"
+                        id="fs"
+                        onChange={filtCat}
+                        className="cbcat"
+                        value="Fruit Seller"
+                      ></input>
+                    </span>
+                  </li>
+                  <li className="list-group-item d-flex justify-content-between align-items-center">
+                    <label htmlFor="vs">Vegetable Seller</label>
+                    <span className="badge">
+                      <input
+                        type="checkbox"
+                        id="vs"
+                        onChange={filtCat}
+                        className="cbcat"
+                        value="Vegetable Seller"
+                      ></input>
+                    </span>
+                  </li>
+                  <li className="list-group-item d-flex justify-content-between align-items-center">
+                    <label htmlFor="sp"> Service Provider</label>
+                    <span className="badge">
+                      <input
+                        type="checkbox"
+                        id="sp"
+                        onChange={filtCat}
+                        className="cbcat"
+                        value="Service Provider"
+                      ></input>
+                    </span>
+                  </li>
+                  <li className="list-group-item d-flex justify-content-between align-items-center">
+                    <label htmlFor="sf">Street Food</label>
+                    <span className="badge">
+                      <input
+                        type="checkbox"
+                        id="sf"
+                        onChange={filtCat}
+                        className="cbcat"
+                        value="Street Food"
+                      ></input>
+                    </span>
+                  </li>
+                  <li className="list-group-item d-flex justify-content-between align-items-center">
+                    <label htmlFor="ics">Ice Cream Seller</label>
+                    <span className="badge">
+                      <input
+                        type="checkbox"
+                        id="ics"
+                        onChange={filtCat}
+                        className="cbcat"
+                        value="Ice Cream Seller"
+                      ></input>
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </>
-        )}
-      </nav>
+          </div>
+          <div className="flex-grow-1 bd-highlight">
+            <Form className="d-flex" onSubmit={handleSearch}>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Type item name you want to search..."
+                  style={{ borderRadius: "0px", border: "1px solid white" }}
+                  onChange={handleClear}
+                />
+                <div className="input-group-append">
+                  <button className="btn btn-light" type="reset" style={{ borderRadius: "0px" }} id='clr-btn' onClick={()=>props.resetHawker()}>
+                  <FontAwesomeIcon icon={faTimes} id="clr-icon"></FontAwesomeIcon>
+                  </button>
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-secondary"
+                  style={{ borderRadius: "0px" }}
+                >
+                  <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon>
+                </button>
+              </div>
+            </Form>
+          </div>
+          <div className=" bd-highlight">
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="primary"
+                className="dropdown-basic"
+                size="md"
+                id="ddl"
+              >
+                Filters
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Dropdown.Item role="button">Fruit Seller</Dropdown.Item>
+                <Dropdown.Item role="button">Vegetable Seller</Dropdown.Item>
+                <Dropdown.Item role="button">Service Provider</Dropdown.Item>
+                <Dropdown.Item role="button">Stree Food</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
