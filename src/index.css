@@ -279,3 +279,18 @@ tbody::-webkit-scrollbar-thumb {
   height: 18px;
   clip-path: circle(38% at 50% 50%);
 }
+
+.btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+.btn{
+  box-shadow: none !important;
+}
+input:focus{
+  outline: none;
+  box-shadow: none;
+}
+input{
+  box-shadow: none !important;
+}

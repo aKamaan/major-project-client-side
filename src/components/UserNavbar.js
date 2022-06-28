@@ -1,5 +1,16 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInr, faMapMarker, faSearch, faStar, faTimes ,faSignOut,faHeart, faHome, faEnvelope, faKey} from "@fortawesome/free-solid-svg-icons";
+import {
+  faInr,
+  faMapMarker,
+  faSearch,
+  faStar,
+  faTimes,
+  faSignOut,
+  faHeart,
+  faHome,
+  faEnvelope,
+  faKey,
+} from "@fortawesome/free-solid-svg-icons";
 import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
@@ -223,6 +234,7 @@ const UserNavbar = (props) => {
             ) : (
               <div className="dropdown">
                 <button
+                data-offset="0,10"
                   className="btn btn-success dropdown-toggle"
                   type="button"
                   id="dropdownMenuButton"
@@ -235,7 +247,7 @@ const UserNavbar = (props) => {
                 </button>
 
                 <div
-                  className="dropdown-menu"
+                  className="dropdown-menu shadow bg-white rounded"
                   aria-labelledby="dropdownMenuButton"
                 >
                   <Link
@@ -247,20 +259,35 @@ const UserNavbar = (props) => {
                       padding: "5px 17px",
                     }}
                   >
-                    Home<FontAwesomeIcon icon={faHome} className="px-1" style={{color:'green'}}></FontAwesomeIcon>
+                    <FontAwesomeIcon
+                      icon={faHome}
+                      className="px-1"
+                      style={{ color: "green"}}
+                    ></FontAwesomeIcon>
+                    <strong>Home</strong>
                   </Link>
 
                   <button
                     className="dropdown-item btn"
                     style={{ borderRadius: " 0" }}
                   >
-                    Change Email<FontAwesomeIcon icon={faEnvelope} className="px-1" style={{color:'blue'}}></FontAwesomeIcon>
+                    <FontAwesomeIcon
+                      icon={faEnvelope}
+                      className="px-1"
+                      style={{ color: "blue" }}
+                    ></FontAwesomeIcon>
+                    <strong>Change Email</strong>
                   </button>
                   <button
                     className="dropdown-item btn"
                     style={{ borderRadius: " 0" }}
                   >
-                    Change Password<FontAwesomeIcon icon={faKey} className="px-1" style={{color:'orange'}}></FontAwesomeIcon>
+                    <FontAwesomeIcon
+                      icon={faKey}
+                      className="px-1"
+                      style={{ color: "orange" }}
+                    ></FontAwesomeIcon>
+                    <strong>Cahange Password</strong>
                   </button>
                   <Link
                     className="dropdown-item"
@@ -271,35 +298,34 @@ const UserNavbar = (props) => {
                       padding: "5px 17px",
                     }}
                   >
-                    Favorites<FontAwesomeIcon icon={faHeart} className="px-1" style={{color:'red'}}></FontAwesomeIcon>
+                    <FontAwesomeIcon
+                      icon={faHeart}
+                      className="px-1"
+                      style={{ color: "red" }}
+                    ></FontAwesomeIcon>
+                    <strong>Favorites</strong>
                   </Link>
-                  <Link
-                    className="dropdown-item"
-                    to="/user/about"
-                    style={{
-                      textDecoration: "none",
-                      color: "black",
-                      padding: "5px 17px",
-                    }}
-                  >
-                    About
-                  </Link>
+
                   <hr style={{ margin: "0.3rem 0" }} />
                   <button
                     className="dropdown-item btn lgbtn"
                     onClick={handleLogout}
                     style={{ borderRadius: " 0" }}
                   >
-                    Logout
-                    <FontAwesomeIcon icon={faSignOut} className="px-1"></FontAwesomeIcon>
+                    <FontAwesomeIcon
+                      icon={faSignOut}
+                      className="px-1"
+                    ></FontAwesomeIcon>
+                    <strong>Logout</strong>
                   </button>
                 </div>
               </div>
             )}
           </div>
-          <div className=" bd-highlight" style={{ minWidth: "11.5rem" }}>
+          <div className=" bd-highlight" >
             <div className="dropdown">
               <button
+              data-offset="0,10"
                 className="btn btn-primary dropdown-toggle"
                 type="button"
                 id="dropdownMenuButton"
@@ -312,13 +338,16 @@ const UserNavbar = (props) => {
               </button>
 
               <div
-                className="dropdown-menu"
+                className="dropdown-menu shadow bg-white rounded"
                 aria-labelledby="dropdownMenuButton"
                 id="dm2"
+                style={{ minWidth: "12rem" }}
               >
                 <ul className="list-group list-group-flush">
                   <li className="list-group-item d-flex justify-content-between align-items-center">
-                    <label htmlFor="fs">Fruit Seller</label>
+                    <label htmlFor="fs" style={{ cursor: "pointer" }}>
+                      <strong>Fruit Seller</strong>
+                    </label>
                     <span className="badge">
                       <input
                         type="checkbox"
@@ -330,7 +359,9 @@ const UserNavbar = (props) => {
                     </span>
                   </li>
                   <li className="list-group-item d-flex justify-content-between align-items-center">
-                    <label htmlFor="vs">Vegetable Seller</label>
+                    <label htmlFor="vs" style={{ cursor: "pointer" }}>
+                      <strong>Vegetable Seller</strong>
+                    </label>
                     <span className="badge">
                       <input
                         type="checkbox"
@@ -342,7 +373,10 @@ const UserNavbar = (props) => {
                     </span>
                   </li>
                   <li className="list-group-item d-flex justify-content-between align-items-center">
-                    <label htmlFor="sp"> Service Provider</label>
+                    <label htmlFor="sp" style={{ cursor: "pointer" }}>
+                    
+                      <strong>Service Provider</strong>
+                    </label>
                     <span className="badge">
                       <input
                         type="checkbox"
@@ -354,7 +388,9 @@ const UserNavbar = (props) => {
                     </span>
                   </li>
                   <li className="list-group-item d-flex justify-content-between align-items-center">
-                    <label htmlFor="sf">Street Food</label>
+                    <label htmlFor="sf" style={{ cursor: "pointer" }}>
+                      <strong>Street Food</strong>
+                    </label>
                     <span className="badge">
                       <input
                         type="checkbox"
@@ -366,7 +402,9 @@ const UserNavbar = (props) => {
                     </span>
                   </li>
                   <li className="list-group-item d-flex justify-content-between align-items-center">
-                    <label htmlFor="ics">Ice Cream Seller</label>
+                    <label htmlFor="ics" style={{ cursor: "pointer" }}>
+                      <strong>Ice Cream Seller</strong>
+                    </label>
                     <span className="badge">
                       <input
                         type="checkbox"
@@ -407,7 +445,7 @@ const UserNavbar = (props) => {
                 </div>
                 <button
                   type="submit"
-                  className="btn btn-secondary"
+                  className="btn btn-danger"
                   style={{ borderRadius: "0px" }}
                 >
                   <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon>
@@ -415,9 +453,10 @@ const UserNavbar = (props) => {
               </div>
             </Form>
           </div>
-          <div className=" bd-highlight">
-            <div className="dropdown" style={{minWidth:'8rem'}}>
+          <div className="bd-highlight">
+            <div className="dropdown" >
               <button
+                data-offset="0,10"
                 className="btn btn-success dropdown-toggle"
                 type="button"
                 id="dropdownMenuButton"
@@ -430,23 +469,42 @@ const UserNavbar = (props) => {
               </button>
 
               <div
-                className="dropdown-menu"
+                className="dropdown-menu shadow bg-white rounded"
                 aria-labelledby="dropdownMenuButton"
+                
               >
                 <button
                   className="dropdown-item btn"
                   style={{ borderRadius: " 0" }}
                 >
-                  Rating
-                  <FontAwesomeIcon icon={faStar} style={{color:'red'}}></FontAwesomeIcon>
+                  <FontAwesomeIcon
+                  
+                    icon={faStar}
+                    style={{ color: "green" }}
+                  ></FontAwesomeIcon>
+                  <strong>Rating</strong>
                 </button>
-                <button className="dropdown-item btn" style={{ borderRadius: " 0" }}>Price<FontAwesomeIcon icon={faInr} style={{color:'blue'}}></FontAwesomeIcon></button>
                 <button
                   className="dropdown-item btn"
                   style={{ borderRadius: " 0" }}
                 >
-                  Nearest First
-                  <FontAwesomeIcon icon={faMapMarker} style={{color:'green'}}></FontAwesomeIcon>
+                  <FontAwesomeIcon
+                  className="px-1"
+                    icon={faInr}
+                    style={{ color: "blue" }}
+                  ></FontAwesomeIcon>
+                  <strong>Price</strong>
+                </button>
+                <button
+                  className="dropdown-item btn"
+                  style={{ borderRadius: " 0" }}
+                >
+                  <FontAwesomeIcon
+                  className="px-1"
+                    icon={faMapMarker}
+                    style={{ color: "red" }}
+                  ></FontAwesomeIcon>
+                  <strong>Nearest First</strong>
                 </button>
               </div>
             </div>
