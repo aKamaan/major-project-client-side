@@ -265,7 +265,7 @@ tbody::-webkit-scrollbar-thumb {
 
 .lgbtn:hover{
   background-color: rgb(241, 97, 97);
-  color:white
+  color:white;
 }
 #dd1{
   border-radius: 5px 0 0 5px;

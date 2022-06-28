@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch,faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faInr, faMapMarker, faSearch, faStar, faTimes ,faSignOut,faHeart, faHome, faEnvelope, faKey} from "@fortawesome/free-solid-svg-icons";
 import React, { useState } from "react";
-import { Modal, Button, Form, Alert, Dropdown } from "react-bootstrap";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { backendApi } from "../urlConfig";
 
@@ -127,20 +127,19 @@ const UserNavbar = (props) => {
     const arr = document.getElementsByClassName("cbcat");
     props.changeCat(Array.from(arr));
   };
-  const handleClear=(e)=>{
+  const handleClear = (e) => {
     // let ele=document.getElementById('clr-icon')
-    let eleBtn=document.getElementById('clr-btn')
-    let str=e.target.value;
+    let eleBtn = document.getElementById("clr-btn");
+    let str = e.target.value;
     // console.log(str.length);
-    if(str.length===0){
-      eleBtn.disabled=true;
+    if (str.length === 0) {
+      eleBtn.disabled = true;
       // ele.style.opacity=0;
-    }
-    else{
-      eleBtn.disabled=false;
+    } else {
+      eleBtn.disabled = false;
       // ele.style.opacity=1;
     }
-  }
+  };
   return (
     <>
       <Modal
@@ -248,20 +247,20 @@ const UserNavbar = (props) => {
                       padding: "5px 17px",
                     }}
                   >
-                    Home
+                    Home<FontAwesomeIcon icon={faHome} className="px-1" style={{color:'green'}}></FontAwesomeIcon>
                   </Link>
 
                   <button
                     className="dropdown-item btn"
                     style={{ borderRadius: " 0" }}
                   >
-                    Change Email
+                    Change Email<FontAwesomeIcon icon={faEnvelope} className="px-1" style={{color:'blue'}}></FontAwesomeIcon>
                   </button>
                   <button
                     className="dropdown-item btn"
                     style={{ borderRadius: " 0" }}
                   >
-                    Change Password
+                    Change Password<FontAwesomeIcon icon={faKey} className="px-1" style={{color:'orange'}}></FontAwesomeIcon>
                   </button>
                   <Link
                     className="dropdown-item"
@@ -272,7 +271,7 @@ const UserNavbar = (props) => {
                       padding: "5px 17px",
                     }}
                   >
-                    Favorites
+                    Favorites<FontAwesomeIcon icon={faHeart} className="px-1" style={{color:'red'}}></FontAwesomeIcon>
                   </Link>
                   <Link
                     className="dropdown-item"
@@ -292,6 +291,7 @@ const UserNavbar = (props) => {
                     style={{ borderRadius: " 0" }}
                   >
                     Logout
+                    <FontAwesomeIcon icon={faSignOut} className="px-1"></FontAwesomeIcon>
                   </button>
                 </div>
               </div>
@@ -392,8 +392,17 @@ const UserNavbar = (props) => {
                   onChange={handleClear}
                 />
                 <div className="input-group-append">
-                  <button className="btn btn-light" type="reset" style={{ borderRadius: "0px" }} id='clr-btn' onClick={()=>props.resetHawker()}>
-                  <FontAwesomeIcon icon={faTimes} id="clr-icon"></FontAwesomeIcon>
+                  <button
+                    className="btn btn-light"
+                    type="reset"
+                    style={{ borderRadius: "0px" }}
+                    id="clr-btn"
+                    onClick={() => props.resetHawker()}
+                  >
+                    <FontAwesomeIcon
+                      icon={faTimes}
+                      id="clr-icon"
+                    ></FontAwesomeIcon>
                   </button>
                 </div>
                 <button
@@ -407,23 +416,40 @@ const UserNavbar = (props) => {
             </Form>
           </div>
           <div className=" bd-highlight">
-            <Dropdown>
-              <Dropdown.Toggle
-                variant="primary"
-                className="dropdown-basic"
-                size="md"
-                id="ddl"
+            <div className="dropdown" style={{minWidth:'8rem'}}>
+              <button
+                className="btn btn-success dropdown-toggle"
+                type="button"
+                id="dropdownMenuButton"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                style={{ borderRadius: " 0px 5px 5px 0px" }}
               >
-                Filters
-              </Dropdown.Toggle>
+                Sort By
+              </button>
 
-              <Dropdown.Menu>
-                <Dropdown.Item role="button">Fruit Seller</Dropdown.Item>
-                <Dropdown.Item role="button">Vegetable Seller</Dropdown.Item>
-                <Dropdown.Item role="button">Service Provider</Dropdown.Item>
-                <Dropdown.Item role="button">Stree Food</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+              <div
+                className="dropdown-menu"
+                aria-labelledby="dropdownMenuButton"
+              >
+                <button
+                  className="dropdown-item btn"
+                  style={{ borderRadius: " 0" }}
+                >
+                  Rating
+                  <FontAwesomeIcon icon={faStar} style={{color:'red'}}></FontAwesomeIcon>
+                </button>
+                <button className="dropdown-item btn" style={{ borderRadius: " 0" }}>Price<FontAwesomeIcon icon={faInr} style={{color:'blue'}}></FontAwesomeIcon></button>
+                <button
+                  className="dropdown-item btn"
+                  style={{ borderRadius: " 0" }}
+                >
+                  Nearest First
+                  <FontAwesomeIcon icon={faMapMarker} style={{color:'green'}}></FontAwesomeIcon>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

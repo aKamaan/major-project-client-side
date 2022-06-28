@@ -20,8 +20,6 @@ const HawkerCard = (props) => {
   const [rev, setRev] = useState([]);
   const [dis, setDis] = useState(1);
 
-
-
   useEffect(() => {
     if (props.username === "") {
       let favBtn = document.getElementsByClassName("mybtn");
@@ -40,7 +38,7 @@ const HawkerCard = (props) => {
         document.getElementById(props.data._id.toString()).classList.add('deletefav')
       }
     }
-  }, [props.username]);
+  }, [props.username,props.data._id,props.favid]);
   const toggleFav = (event) => {
     let favBtn = document.getElementById(event.currentTarget.id);
     if (favBtn.classList.contains("deletefav")) {
@@ -243,7 +241,7 @@ const HawkerCard = (props) => {
                       />
                     </MDBTabsPane>
                     <MDBTabsPane show={basicActive === "tab3"}>
-                      <HawkerInv id2={props.data._id} />
+                      <HawkerInv data={props.data} />
                     </MDBTabsPane>
                   </MDBTabsContent>
                 </div>

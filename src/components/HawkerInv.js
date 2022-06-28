@@ -5,14 +5,19 @@ const HawkerInv = (props) => {
   const [inv, setInv] = useState([]);
   useEffect(() => {
     const getInv = async () => {
-      const rsp = await fetch(`${backendApi}/hawker/getinv/${props.id2}`, {
+      const rsp = await fetch(`${backendApi}/hawker/getinv/${props.data._id}`, {
         method: "GET",
       });
       const data = await rsp.json();
-      if (data.inv) setInv(data.inv.items);
+      if (data.inv) {
+        setInv(data.inv.items);
+        // console.log(data);
+      }else{
+        setInv([]);
+      }
     };
     getInv();
-  }, [props.id2]);
+  }, [props.data._id]);
 
   return (
     <>
