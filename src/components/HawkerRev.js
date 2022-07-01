@@ -96,6 +96,9 @@ const HawkerRev = ({id1,username,token,rev,updateRev}) => {
                   <h5 className="mb-1" style={{ fontSize: "0.9rem" }}>
                     Rating : {e.rating} star
                   </h5>
+                  <small>{
+                  e.createdAt.split('T')[0]
+                  }</small>
                 </div>
                 <p className="mb-1">{e.review}</p>
                 <small>

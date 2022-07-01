@@ -1,7 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faInr,
-  faMapMarker,
   faSearch,
   faStar,
   faTimes,
@@ -21,6 +20,8 @@ const UserNavbar = (props) => {
   const [showSignup, setShowSignup] = useState(0);
   const [show, setShow] = useState(0);
   const [alert, setAlert] = useState("");
+  const [rating,setRating]=useState(0);
+  
   const handleSearch = (e) => {
     e.preventDefault();
     const ele = document.getElementsByClassName("cbcat");
@@ -29,26 +30,39 @@ const UserNavbar = (props) => {
       Array.from(ele).forEach((e) => {
         if (e.checked) catArr.push(e.value);
       });
-      const postSearch = async () => {
-        props.changeLoad(1);
-        const rsp = await fetch(`${backendApi}/hawker/search`, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            item: e.target[0].value,
-            cat: catArr,
-          }),
-        });
-        const data = await rsp.json();
-        if (data.ok) {
-          props.changeLoad(0);
-          props.search(data.ans);
-        }
+      
+      props.changeLoad(1);
+      if("geolocation" in navigator){
+        navigator.geolocation.getCurrentPosition(
+          res=>{
+              const postSearch = async () => {
+                const rsp = await fetch(`${backendApi}/hawker/search`, {
+                  method: "POST",
+                  headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    item: e.target[0].value,
+                    cat: catArr,
+                    lat:res.coords.latitude,
+                    long:res.coords.longitude
+                  }),
+                });
+                const data = await rsp.json();
+                if (data.ok) {
+                  props.changeLoad(0);
+                  setRating(1);
+                  props.search(data.ans);
+                }
+              }
+              postSearch();
+            },
+            err=>{
+              alert("location not supported by your browser");
+            }
+          )
       };
-      postSearch();
     } else {
       window.alert("Please enter some value");
     }
@@ -136,21 +150,64 @@ const UserNavbar = (props) => {
 
   const filtCat = () => {
     const arr = document.getElementsByClassName("cbcat");
+    setRating(0);
+    document.getElementById('inf').value='';
     props.changeCat(Array.from(arr));
   };
-  const handleClear = (e) => {
-    // let ele=document.getElementById('clr-icon')
-    let eleBtn = document.getElementById("clr-btn");
-    let str = e.target.value;
-    // console.log(str.length);
-    if (str.length === 0) {
-      eleBtn.disabled = true;
-      // ele.style.opacity=0;
-    } else {
-      eleBtn.disabled = false;
-      // ele.style.opacity=1;
-    }
-  };
+ 
+  const sortRating=()=>{
+    let ele=document.getElementsByClassName('sortBtn');
+    let item=document.getElementById('inf').value;
+
+    Array.from(ele).forEach(e=>{
+      if(e.innerText.localeCompare("Sort By Rating")===0){
+        if(e.classList.contains('sortBtn1')){
+          // e.classList.remove('sortBtn1');
+          // props.sortRating(0,[],"");
+          // setRating(0);
+        }
+        else{
+          e.classList.add('sortBtn1');
+          const arr = document.getElementsByClassName("cbcat");
+          let catarr=[];
+          Array.from(arr).forEach(e=>{
+            if(e.checked){
+              catarr.push(e.value);
+            }
+          })
+          props.sortRating(1,catarr,item);
+        }
+      }
+      else{
+        e.classList.remove('sortBtn2');
+      }
+    })
+  }
+  const sortPrice=()=>{
+    let ele=document.getElementsByClassName('sortBtn');
+    let item=document.getElementById('inf').value;
+    Array.from(ele).forEach(e=>{
+      if(e.innerText.localeCompare("Sort By Price")===0){
+        if(e.classList.contains('sortBtn2')){
+          // e.classList.remove('sortBtn2');
+        }
+        else{
+          e.classList.add('sortBtn2');
+          const arr = document.getElementsByClassName("cbcat");
+          let catarr=[];
+          Array.from(arr).forEach(e=>{
+            if(e.checked){
+              catarr.push(e.value);
+            }
+          })
+          props.sortPrice(1,catarr,item);
+        }
+      }
+      else{
+        e.classList.remove('sortBtn1');
+      }
+    })
+  }
   return (
     <>
       <Modal
@@ -322,8 +379,43 @@ const UserNavbar = (props) => {
               </div>
             )}
           </div>
-          <div className=" bd-highlight" >
-            <div className="dropdown">
+          
+          <div className="flex-grow-1 bd-highlight">
+            <Form className="d-flex" onSubmit={handleSearch}>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Type item name you want to search..."
+                  style={{ borderRadius: "0px", border: "1px solid white" }}
+                  id="inf"
+                />
+                <div className="input-group-append">
+                  <button
+                    className="btn btn-light"
+                    type="reset"
+                    style={{ borderRadius: "0px" }}
+                    id="clr-btn"
+                    onClick={() => {props.resetHawker();setRating(0)}}
+                  >
+                    <FontAwesomeIcon
+                      icon={faTimes}
+                      id="clr-icon"
+                    ></FontAwesomeIcon>
+                  </button>
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-danger"
+                  style={{ borderRadius: "0px" }}
+                >
+                  <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon>
+                </button>
+              </div>
+            </Form>
+          </div>
+          <div className="bd-highlight">
+          <div className="dropdown">
               <button
               data-offset="0,10"
                 className="btn btn-primary dropdown-toggle"
@@ -332,7 +424,7 @@ const UserNavbar = (props) => {
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"
-                style={{ borderRadius: " 0", width: "100%" }}
+                style={{ borderRadius: "0 5px 5px 0", width: "100%" }}
               >
                 Choose Category
               </button>
@@ -419,97 +511,17 @@ const UserNavbar = (props) => {
               </div>
             </div>
           </div>
-          <div className="flex-grow-1 bd-highlight">
-            <Form className="d-flex" onSubmit={handleSearch}>
-              <div className="input-group">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Type item name you want to search..."
-                  style={{ borderRadius: "0px", border: "1px solid white" }}
-                  onChange={handleClear}
-                />
-                <div className="input-group-append">
-                  <button
-                    className="btn btn-light"
-                    type="reset"
-                    style={{ borderRadius: "0px" }}
-                    id="clr-btn"
-                    onClick={() => props.resetHawker()}
-                  >
-                    <FontAwesomeIcon
-                      icon={faTimes}
-                      id="clr-icon"
-                    ></FontAwesomeIcon>
-                  </button>
-                </div>
-                <button
-                  type="submit"
-                  className="btn btn-danger"
-                  style={{ borderRadius: "0px" }}
-                >
-                  <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon>
-                </button>
-              </div>
-            </Form>
-          </div>
-          <div className="bd-highlight">
-            <div className="dropdown" >
-              <button
-                data-offset="0,10"
-                className="btn btn-success dropdown-toggle"
-                type="button"
-                id="dropdownMenuButton"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                style={{ borderRadius: " 0px 5px 5px 0px" }}
-              >
-                Sort By
-              </button>
-
-              <div
-                className="dropdown-menu shadow bg-white rounded"
-                aria-labelledby="dropdownMenuButton"
-                
-              >
-                <button
-                  className="dropdown-item btn"
-                  style={{ borderRadius: " 0" }}
-                >
-                  <FontAwesomeIcon
-                  
-                    icon={faStar}
-                    style={{ color: "green" }}
-                  ></FontAwesomeIcon>
-                  <strong>Rating</strong>
-                </button>
-                <button
-                  className="dropdown-item btn"
-                  style={{ borderRadius: " 0" }}
-                >
-                  <FontAwesomeIcon
-                  className="px-1"
-                    icon={faInr}
-                    style={{ color: "blue" }}
-                  ></FontAwesomeIcon>
-                  <strong>Price</strong>
-                </button>
-                <button
-                  className="dropdown-item btn"
-                  style={{ borderRadius: " 0" }}
-                >
-                  <FontAwesomeIcon
-                  className="px-1"
-                    icon={faMapMarker}
-                    style={{ color: "red" }}
-                  ></FontAwesomeIcon>
-                  <strong>Nearest First</strong>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
+       
+        {
+          (rating && props.h.length>0)?(
+            <>
+              <button className="mybtns mybtn1 mr-3 sortBtn" onClick={sortRating}><FontAwesomeIcon icon={faStar}></FontAwesomeIcon>Sort By Rating</button>
+              <button className="mybtns mybtn2 mx-3 sortBtn" onClick={sortPrice}><FontAwesomeIcon icon={faInr}></FontAwesomeIcon>Sort By Price</button>
+            </>
+          ):<div></div>
+        }
+        
       </div>
     </>
   );

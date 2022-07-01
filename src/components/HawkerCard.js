@@ -63,6 +63,10 @@ const HawkerCard = (props) => {
 
       if (data !== null) {
         setRev(data.reviews);
+        // console.log(data)
+      }
+      else{
+        setRev([])
       }
     };
     getRev();
@@ -73,8 +77,13 @@ const HawkerCard = (props) => {
       setReview(rev.length);
       rev.forEach((e) => (sum += e.rating));
       setRating((sum / rev.length).toFixed(1));
+      props.setRating(props.data._id,(sum / rev.length).toFixed(1))
     }
-  }, [rev]);
+    else{
+      setReview(0);
+      setRating(0);
+    }
+  }, [rev,props]);
   return (
     <>
       <div className="col-sm-12 col-md-4">

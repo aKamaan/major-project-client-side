@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { backendApi } from "../urlConfig";
 import HawkerCard from "./HawkerCard";
 import UserNavbar from "./UserNavbar";
-import { Routes, Route } from "react-router-dom";
-import About from "./About";
+import { Routes, Route, Link } from "react-router-dom";
 import UserProtectedRoute from "./UserProtectedRoute";
+import { Breadcrumb } from "react-bootstrap";
+import Loading from "./Loading";
 
 const User = () => {
   const [hawkers, setHawkers] = useState([]);
@@ -21,6 +22,7 @@ const User = () => {
   const [username, setUsername] = useState("");
   const [fav, setFav] = useState([]);
   const [favid, setFavid] = useState([]);
+  const [ratingMap, setRatingMap] = useState({});
   // implement location update here
 
   useEffect(() => {
@@ -41,6 +43,9 @@ const User = () => {
             setFavid((favid) => [...favid, e._id.toString()])
           );
           // console.log(favid);
+        } else {
+          setFav([]);
+          setFavid([]);
         }
       };
       getFav();
@@ -87,13 +92,35 @@ const User = () => {
   useEffect(() => {
     const getHawkers = async () => {
       setLoading(1);
-      const rsp = await fetch(`${backendApi}/hawker/allhawkers`, {
-        method: "GET",
-      });
-      const data = await rsp.json();
-      setLoading(0);
-      setHawkers(data.data);
-      setfHawkers(data.data);
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (res) => {
+            // console.log(res.coords.latitude,res.coords.longitude)
+            const location = async () => {
+              const rsp = await fetch(`${backendApi}/hawker/allhawkers`, {
+                method: "POST",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  lat: res.coords.latitude,
+                  long: res.coords.longitude,
+                }),
+              });
+              const data = await rsp.json();
+              setLoading(0);
+              setHawkers(data.data);
+              setfHawkers(data.data);
+            };
+            location();
+          },
+          (err) => {}
+        );
+      } else {
+        console.log("location not supprted");
+      }
+
       // console.log(data.data);
     };
     getHawkers();
@@ -139,12 +166,65 @@ const User = () => {
       setFavid(temp);
     }
   };
-  const renderFirstPage = (dataa) => {
+  const setRating = (id, rat) => {
+    ratingMap[id] = parseFloat(rat);
+    setRatingMap(ratingMap);
+  };
+  const renderFirstPage = (dataa, nav) => {
     // console.log(dataa);
     return (
       <>
+        {nav ? (
+          <UserNavbar
+            token={userToken}
+            username={username}
+            changeUser={(userTkn, usernm) => updateState(userTkn, usernm)}
+            changeCat={(e) => changeCategory(e)}
+            search={(d) => search(d)}
+            changeLoad={(val) => changeLoading(val)}
+            resetHawker={() => resetHaw()}
+            sortRating={(d, arr, str) => sortByRating(d, arr, str)}
+            sortPrice={(d, arr, str) => sortByPrice(d, arr, str)}
+            h={fhawkers}
+          />
+        ) : (
+          <>
+            <div className="container my-3">
+              <Breadcrumb
+                style={{
+                  backgroundColor: "white",
+                  padding: "7px 20px",
+                  borderRadius: "5px",
+                  marginBottom: "0",
+                }}
+              >
+                <Breadcrumb.Item>
+                  <Link
+                    to="/user"
+                    style={{ textDecoration: "none", color: "black" }}
+                  >
+                    Home
+                  </Link>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item active>
+                  <Link
+                    to="/user/userfav"
+                    style={{ textDecoration: "none", color: "black" }}
+                  >
+                    Favorites
+                  </Link>
+                </Breadcrumb.Item>
+              </Breadcrumb>
+            </div>
+          </>
+        )}
         {loading ? (
-          <h1>Loading...</h1>
+          <>
+            <div className="container fluid">
+              <Loading size={"6x"} />
+            </div>
+           
+          </>
         ) : (
           <div className="container fluid mt-4">
             {dataa.length === 0 ? (
@@ -161,6 +241,7 @@ const User = () => {
                       delfav={(id) => delFav(id)}
                       addfav={(id) => addFav(id)}
                       key={i}
+                      setRating={(id, rat) => setRating(id, rat)}
                     />
                   );
                 })}
@@ -171,43 +252,114 @@ const User = () => {
       </>
     );
   };
-  const resetHaw=()=>{
+  const resetHaw = () => {
     setfHawkers(hawkers);
-  }
-  const search=(data)=>{
+  };
+  const search = (data) => {
     setfHawkers(data);
-  }
-  const changeLoading=(val)=>{
+  };
+  const changeLoading = (val) => {
     setLoading(val);
-  }
+  };
   const changeCategory = (cat) => {
+    let flag=0;
     Array.from(cat).forEach((e) => {
-      if (e.checked) catFil[e.value] = true;
+      if (e.checked){
+        catFil[e.value] = true;
+        flag=1;
+      } 
       else catFil[e.value] = false;
     });
     setCatFil(catFil);
 
     let arr1 = hawkers.filter((e) => catFil[e.category]);
-    if (arr1.length > 0) setfHawkers(arr1);
-    else setfHawkers(hawkers);
+    if (!flag) setfHawkers([...hawkers]);
+    else {
+      setfHawkers([...arr1]);
+    }
   };
+  const sortByRating = (flag, cat, item) => {
+    if (!flag) {
+      setfHawkers(fhawkers);
+    } else {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (res) => {
+            const sortRat = async () => {
+              setLoading(1);
+              const rsp = await fetch(`${backendApi}/hawker/sortbyrating`, {
+                method: "POST",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  lat: res.coords.latitude,
+                  long: res.coords.longitude,
+                  cat,
+                  item,
+                }),
+              });
+              const data = await rsp.json();
+              setLoading(0);
+              if (data.ok) {
+                setfHawkers(data.rsp1);
+              }
+            };
+            sortRat();
+          },
+          (err) => {
+            alert("Location not supported");
+          }
+        );
+      }
+    }
+  };
+  const sortByPrice = (flag,cat,item) => {
+    if (flag){
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (res) => {
+            // console.log(res.coords.latitude,res.coords.longitude)
+            const sortPr = async () => {
+              setLoading(1);
+              const rsp = await fetch(`${backendApi}/hawker/sortbyprice`, {
+                method: "POST",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  lat: res.coords.latitude,
+                  long: res.coords.longitude,
+                  cat,
+                  item,
+                }),
+              });
+              const data = await rsp.json();
+              setLoading(0);
+              if (data.ok) {
+                setfHawkers(data.data);
+                // console.log(data.data);
+              }
+            };
+            sortPr();
+          },
+          (err) => {
+            alert("Location not supported");
+          }
+        );
+      }
+    }
+  };
+
   return (
     <>
-      <UserNavbar
-        token={userToken}
-        username={username}
-        changeUser={(userTkn, usernm) => updateState(userTkn, usernm)}
-        changeCat={(e) => changeCategory(e)}
-        search={(d)=>search(d)}
-        changeLoad={(val)=>changeLoading(val)}
-        resetHawker={()=>resetHaw()}
-      />
-
       <Routes>
-        <Route path="/" element={renderFirstPage(fhawkers)} />
+        <Route path="/" element={renderFirstPage(fhawkers, 1)} />
         <Route element={<UserProtectedRoute isLog={username} />}>
-          <Route exact path="/userfav" element={renderFirstPage(fav)} />
-          <Route exact path="/about" element={<About />} />
+          <Route exact path="/userfav" element={renderFirstPage(fav, 0)} />
+          {/* <Route exact path="/about" element={<About />} /> */}
         </Route>
       </Routes>
     </>
