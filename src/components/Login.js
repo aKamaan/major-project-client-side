@@ -40,7 +40,7 @@ const Login = (props) => {
             .then((result) => {
                 setfpLoader(0);
                 setfpModal(!setfpModal);
-                setMessg('Link sent to your email');
+                setAlertMessg('Link sent to your email');
                 setColor('Green');
                 setAlert(1);
                 setTimeout(()=>{
