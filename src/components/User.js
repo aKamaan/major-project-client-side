@@ -4,12 +4,13 @@ import HawkerCard from "./HawkerCard";
 import UserNavbar from "./UserNavbar";
 import { Routes, Route, Link } from "react-router-dom";
 import UserProtectedRoute from "./UserProtectedRoute";
-import { Breadcrumb } from "react-bootstrap";
+import { Breadcrumb, Form, Button } from "react-bootstrap";
 import Loading from "./Loading";
 
 const User = () => {
   const [hawkers, setHawkers] = useState([]);
   const [fhawkers, setfHawkers] = useState([]);
+  const [email, setEmail] = useState("");
   const [catFil, setCatFil] = useState({
     "Fruit Seller": false,
     "Ice Cream Seller": false,
@@ -23,8 +24,29 @@ const User = () => {
   const [fav, setFav] = useState([]);
   const [favid, setFavid] = useState([]);
   const [ratingMap, setRatingMap] = useState({});
+  const [loader, setLoader] = useState(0);
   // implement location update here
 
+  useEffect(() => {
+    if (userToken) {
+      const getEmail = async () => {
+        const rsp = await fetch(`${backendApi}/user/info`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `bearer ${userToken}`,
+          },
+        });
+        const data = await rsp.json();
+        if (data.ok) {
+          setEmail(data.user.email);
+          // console.log(data);
+        } else setEmail("");
+      };
+      getEmail();
+    }
+  }, [userToken]);
   useEffect(() => {
     if (userToken) {
       const getFav = async () => {
@@ -37,11 +59,11 @@ const User = () => {
         });
         const data = await rsp.json();
         // console.log(data.data)
-        if (data.ok) {
+        if (data.ok && data.data) {
           setFav(data.data.favorites);
-          data.data.favorites.forEach((e) =>
-            setFavid((favid) => [...favid, e._id.toString()])
-          );
+          const arr = [];
+          data.data.favorites.forEach((e) => arr.push(e._id.toString()));
+          setFavid(arr);
           // console.log(favid);
         } else {
           setFav([]);
@@ -186,6 +208,8 @@ const User = () => {
             sortRating={(d, arr, str) => sortByRating(d, arr, str)}
             sortPrice={(d, arr, str) => sortByPrice(d, arr, str)}
             h={fhawkers}
+            email={email}
+            changeEmail={(e) => setEmail(e)}
           />
         ) : (
           <>
@@ -220,10 +244,7 @@ const User = () => {
         )}
         {loading ? (
           <>
-            <div className="container fluid">
-              <Loading size={"6x"} />
-            </div>
-           
+            <Loading size="6x" />
           </>
         ) : (
           <div className="container fluid mt-4">
@@ -262,13 +283,12 @@ const User = () => {
     setLoading(val);
   };
   const changeCategory = (cat) => {
-    let flag=0;
+    let flag = 0;
     Array.from(cat).forEach((e) => {
-      if (e.checked){
+      if (e.checked) {
         catFil[e.value] = true;
-        flag=1;
-      } 
-      else catFil[e.value] = false;
+        flag = 1;
+      } else catFil[e.value] = false;
     });
     setCatFil(catFil);
 
@@ -315,8 +335,8 @@ const User = () => {
       }
     }
   };
-  const sortByPrice = (flag,cat,item) => {
-    if (flag){
+  const sortByPrice = (flag, cat, item) => {
+    if (flag) {
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
           (res) => {
@@ -352,11 +372,63 @@ const User = () => {
       }
     }
   };
-
+  const handleReset = (e) => {
+    e.preventDefault();
+    const password = e.target[0].value;
+    if (password.length < 6) alert("Password must me 6 characters long");
+    const token = window.location.pathname.split("/")[3];
+    setLoader(1);
+    const post = async () => {
+      const rsp = await fetch(`${backendApi}/user/forgotpassword`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password, token }),
+      });
+      const data = await rsp.json();
+      setLoader(0);
+      if (data.ok) {
+        alert('Your password has been updated successfuly you can close this page and login again');
+        // console.log(data.data);
+      }
+    };
+    post();
+  };
+  const renderResetForm = () => {
+    return (
+      <div
+        className="container"
+        style={{ width: "max-content", margin: "2rem auto" }}
+      >
+        <Form onSubmit={handleReset}>
+          <Form.Group className="mb-3" controlId="formBasic4">
+            <Form.Label>New Password(Must me 6 characters long)</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Enter your new password"
+              required
+            />
+          </Form.Group>
+          {loader ? (
+            <Button variant="primary" disabled={true} style={{width:'64.05px',height:'38px'}}>
+              <Loading size="lg" />
+            </Button>
+          ) : (
+            <Button variant="primary" type="submit">
+              Reset
+            </Button>
+          )}
+        </Form>
+      </div>
+    );
+  };
   return (
     <>
       <Routes>
         <Route path="/" element={renderFirstPage(fhawkers, 1)} />
+        <Route path="/reset/:token" element={renderResetForm()} />
         <Route element={<UserProtectedRoute isLog={username} />}>
           <Route exact path="/userfav" element={renderFirstPage(fav, 0)} />
           {/* <Route exact path="/about" element={<About />} /> */}

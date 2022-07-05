@@ -13,15 +13,28 @@ import {
 import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { backendApi } from "../urlConfig";
+import { backendApi, frontendApi } from "../urlConfig";
+import Loading from "./Loading";
+import emailjs from 'emailjs-com'
+
+import TopAlert from "./TopAlert";
 
 const UserNavbar = (props) => {
   const [showLogin, setShowLogin] = useState(0);
   const [showSignup, setShowSignup] = useState(0);
   const [show, setShow] = useState(0);
   const [alert, setAlert] = useState("");
-  const [rating,setRating]=useState(0);
-  
+  const [rating, setRating] = useState(0);
+  const [showEmail, setshowEmail] = useState(0);
+  const [emailLoader, setEmailLoader] = useState(0);
+  const [passwordLoader, setPasswordLoader] = useState(0);
+  const [showPassword, setshowPassword] = useState(0);
+  const [fpModal, setfpModal] = useState(0);
+  const [fpLoader, setfpLoader] = useState(0);
+  const [topAlert,settopAlert]=useState(0);
+  const [messg,setMessg]=useState('');
+  const [color,setColor]=useState('');
+ 
   const handleSearch = (e) => {
     e.preventDefault();
     const ele = document.getElementsByClassName("cbcat");
@@ -30,39 +43,39 @@ const UserNavbar = (props) => {
       Array.from(ele).forEach((e) => {
         if (e.checked) catArr.push(e.value);
       });
-      
+
       props.changeLoad(1);
-      if("geolocation" in navigator){
+      if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
-          res=>{
-              const postSearch = async () => {
-                const rsp = await fetch(`${backendApi}/hawker/search`, {
-                  method: "POST",
-                  headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    item: e.target[0].value,
-                    cat: catArr,
-                    lat:res.coords.latitude,
-                    long:res.coords.longitude
-                  }),
-                });
-                const data = await rsp.json();
-                if (data.ok) {
-                  props.changeLoad(0);
-                  setRating(1);
-                  props.search(data.ans);
-                }
+          (res) => {
+            const postSearch = async () => {
+              const rsp = await fetch(`${backendApi}/hawker/search`, {
+                method: "POST",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  item: e.target[0].value,
+                  cat: catArr,
+                  lat: res.coords.latitude,
+                  long: res.coords.longitude,
+                }),
+              });
+              const data = await rsp.json();
+              if (data.ok) {
+                props.changeLoad(0);
+                setRating(1);
+                props.search(data.ans);
               }
-              postSearch();
-            },
-            err=>{
-              alert("location not supported by your browser");
-            }
-          )
-      };
+            };
+            postSearch();
+          },
+          (err) => {
+            alert("location not supported by your browser");
+          }
+        );
+      }
     } else {
       window.alert("Please enter some value");
     }
@@ -89,6 +102,7 @@ const UserNavbar = (props) => {
         props.changeUser(data.token, data.user.name);
       } else {
         setShow(1);
+        
         setAlert(data.error);
         setTimeout(() => {
           setShow(0);
@@ -151,65 +165,297 @@ const UserNavbar = (props) => {
   const filtCat = () => {
     const arr = document.getElementsByClassName("cbcat");
     setRating(0);
-    document.getElementById('inf').value='';
+    document.getElementById("inf").value = "";
     props.changeCat(Array.from(arr));
   };
- 
-  const sortRating=()=>{
-    let ele=document.getElementsByClassName('sortBtn');
-    let item=document.getElementById('inf').value;
 
-    Array.from(ele).forEach(e=>{
-      if(e.innerText.localeCompare("Sort By Rating")===0){
-        if(e.classList.contains('sortBtn1')){
+  const sortRating = () => {
+    let ele = document.getElementsByClassName("sortBtn");
+    let item = document.getElementById("inf").value;
+
+    Array.from(ele).forEach((e) => {
+      if (e.innerText.localeCompare("Sort By Rating") === 0) {
+        if (e.classList.contains("sortBtn1")) {
           // e.classList.remove('sortBtn1');
           // props.sortRating(0,[],"");
           // setRating(0);
-        }
-        else{
-          e.classList.add('sortBtn1');
+        } else {
+          e.classList.add("sortBtn1");
           const arr = document.getElementsByClassName("cbcat");
-          let catarr=[];
-          Array.from(arr).forEach(e=>{
-            if(e.checked){
+          let catarr = [];
+          Array.from(arr).forEach((e) => {
+            if (e.checked) {
               catarr.push(e.value);
             }
-          })
-          props.sortRating(1,catarr,item);
+          });
+          props.sortRating(1, catarr, item);
         }
+      } else {
+        e.classList.remove("sortBtn2");
       }
-      else{
-        e.classList.remove('sortBtn2');
-      }
-    })
-  }
-  const sortPrice=()=>{
-    let ele=document.getElementsByClassName('sortBtn');
-    let item=document.getElementById('inf').value;
-    Array.from(ele).forEach(e=>{
-      if(e.innerText.localeCompare("Sort By Price")===0){
-        if(e.classList.contains('sortBtn2')){
+    });
+  };
+  const sortPrice = () => {
+    let ele = document.getElementsByClassName("sortBtn");
+    let item = document.getElementById("inf").value;
+    Array.from(ele).forEach((e) => {
+      if (e.innerText.localeCompare("Sort By Price") === 0) {
+        if (e.classList.contains("sortBtn2")) {
           // e.classList.remove('sortBtn2');
-        }
-        else{
-          e.classList.add('sortBtn2');
+        } else {
+          e.classList.add("sortBtn2");
           const arr = document.getElementsByClassName("cbcat");
-          let catarr=[];
-          Array.from(arr).forEach(e=>{
-            if(e.checked){
+          let catarr = [];
+          Array.from(arr).forEach((e) => {
+            if (e.checked) {
               catarr.push(e.value);
             }
-          })
-          props.sortPrice(1,catarr,item);
+          });
+          props.sortPrice(1, catarr, item);
+        }
+      } else {
+        e.classList.remove("sortBtn1");
+      }
+    });
+  };
+  const changeEmail = (e) => {
+    e.preventDefault();
+    const post = async () => {
+      const nemail = e.target[0].value;
+      if (!nemail) {
+        window.alert("Please enter a email");
+      } else {
+        setEmailLoader(1);
+        const rsp = await fetch(`${backendApi}/user/changeemail`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `bearer ${props.token}`,
+          },
+          body: JSON.stringify({ email: nemail }),
+        });
+        const data = await rsp.json();
+        setEmailLoader(0);
+        if (data.ok) {
+          props.changeEmail(data.rsp.email);
+          setshowEmail(!showEmail);
+        } else {
+          setShow(1);
+          setAlert(data.err);
+          setTimeout(() => {
+            setShow(0);
+            setAlert("");
+          }, 2000);
         }
       }
-      else{
-        e.classList.remove('sortBtn1');
+    };
+    post();
+  };
+  const changePassword = (e) => {
+    e.preventDefault();
+    const post = async () => {
+      const cpassword = e.target[0].value;
+      const npassword = e.target[1].value;
+      if (cpassword.length < 6 || npassword.length < 6) {
+        window.alert("Password must be 6 characters long");
+      } else {
+        setPasswordLoader(1);
+        const rsp = await fetch(`${backendApi}/user/changepassword`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `bearer ${props.token}`,
+          },
+          body: JSON.stringify({ cpassword, npassword }),
+        });
+        const data = await rsp.json();
+        setPasswordLoader(0);
+        if (data.ok) {
+          setshowPassword(!showPassword);
+        } else {
+          setShow(1);
+          setAlert(data.err);
+          setTimeout(() => {
+            setShow(0);
+            setAlert("");
+          }, 2000);
+        }
       }
-    })
-  }
+    };
+    post();
+  };
+  const forgotPassword = (e) => {
+    e.preventDefault();
+    const email = e.target[0].value;
+    const post = async () => {
+      setfpLoader(1);
+      const rsp = await fetch(`${backendApi}/user/resetpassword`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+      const data = await rsp.json();
+      if (data.ok) {
+        const ele=document.querySelector('#dummy-form');
+        // console.log(ele);
+        ele.elements[0].value=email;
+        ele.elements[1].value=`${frontendApi}/user/reset/${data.token}`
+        emailjs.sendForm('service_ua8e7uf', 'template_pzm2ufj', ele, 'V7fyITri4DopxVWzG')
+          .then((result) => {
+            setfpLoader(0);
+            setfpModal(!setfpModal);
+            settopAlert(1);
+            setTimeout(()=>{
+              settopAlert(0);
+            },2000);
+          }, (error) => {
+              console.log(error.text);
+          });
+      }
+      else{
+
+        setfpLoader(0);
+        setMessg(data.err);
+        setColor('Red');
+        settopAlert(1);
+        setTimeout(()=>{
+          settopAlert(0);
+        },3000);
+      }
+    };
+    post();
+  };
+  
   return (
     <>
+    <form style={{display:'none'}} id='dummy-form'>
+      <input type='email' name='email'/>
+      <input type='text' name='link'/>
+    </form>
+      {
+        topAlert?(
+          <TopAlert text={messg} color={color} />
+        ):(<></>)
+      }
+      <Modal
+        show={showPassword}
+        onHide={() => setshowPassword(!showPassword)}
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Change Password
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {renderAlert()}
+          <Form onSubmit={changePassword}>
+            <Form.Group className="mb-3" controlId="formBasicchangePassword">
+              <Form.Label>Current Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter your current password"
+              />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicchangePassword2">
+              <Form.Label>New Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter your new password"
+              />
+            </Form.Group>
+            {passwordLoader ? (
+              <Button
+                variant="success"
+                type="button"
+                disabled={true}
+                style={{ width: "123.5px", height: "38px" }}
+              >
+                <Loading size="lg" />
+              </Button>
+            ) : (
+              <Button variant="success" type="submit">
+                Save Changes
+              </Button>
+            )}
+          </Form>
+        </Modal.Body>
+      </Modal>
+      <Modal
+        show={fpModal}
+        onHide={() => setfpModal(!fpModal)}
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Forgot Password
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        
+          <Form onSubmit={forgotPassword}>
+            <Form.Group className="mb-3" controlId="formBasicchangePassword">
+              <Form.Label>Email</Form.Label>
+              <Form.Control type="email" placeholder="Your Email" required />
+            </Form.Group>
+            {fpLoader ? (
+              <Button variant="success" disabled={true} style={{ width: "93.7px", height: "38px" }}>
+                <Loading size="lg" />
+              </Button>
+            ) : (
+              <Button variant="success" type="submit">
+                Send Link
+              </Button>
+            )}
+          </Form>
+        </Modal.Body>
+      </Modal>
+      <Modal
+        show={showEmail}
+        onHide={() => setshowEmail(!showEmail)}
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Change Email
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {renderAlert()}
+          <Form onSubmit={changeEmail}>
+            <Form.Group className="mb-3" controlId="formBasicchangeEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter your email"
+                defaultValue={props.email}
+              />
+            </Form.Group>
+            {emailLoader ? (
+              <Button
+                variant="success"
+                type="button"
+                disabled={true}
+                style={{ width: "123.5px", height: "38px" }}
+              >
+                <Loading size="lg" />
+              </Button>
+            ) : (
+              <Button variant="success" type="submit">
+                Save Changes
+              </Button>
+            )}
+          </Form>
+        </Modal.Body>
+      </Modal>
       <Modal
         show={showLogin}
         onHide={() => setShowLogin(!showLogin)}
@@ -229,6 +475,19 @@ const UserNavbar = (props) => {
             <Form.Group className="mb-3" controlId="formBasic2">
               <Form.Label>Password</Form.Label>
               <Form.Control type="password" placeholder="Enter you password" />
+              <small
+                style={{
+                  color: "red",
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  setfpModal(!fpModal);
+                  setShowLogin(!showLogin);
+                }}
+              >
+                Forgot Password
+              </small>
             </Form.Group>
             <Button variant="success" type="submit">
               Login
@@ -291,7 +550,7 @@ const UserNavbar = (props) => {
             ) : (
               <div className="dropdown">
                 <button
-                data-offset="0,10"
+                  data-offset="0,10"
                   className="btn btn-success dropdown-toggle"
                   type="button"
                   id="dropdownMenuButton"
@@ -319,7 +578,7 @@ const UserNavbar = (props) => {
                     <FontAwesomeIcon
                       icon={faHome}
                       className="px-1"
-                      style={{ color: "green"}}
+                      style={{ color: "green" }}
                     ></FontAwesomeIcon>
                     <strong>Home</strong>
                   </Link>
@@ -327,6 +586,7 @@ const UserNavbar = (props) => {
                   <button
                     className="dropdown-item btn"
                     style={{ borderRadius: " 0" }}
+                    onClick={() => setshowEmail(!showEmail)}
                   >
                     <FontAwesomeIcon
                       icon={faEnvelope}
@@ -338,13 +598,14 @@ const UserNavbar = (props) => {
                   <button
                     className="dropdown-item btn"
                     style={{ borderRadius: " 0" }}
+                    onClick={() => setshowPassword(!showPassword)}
                   >
                     <FontAwesomeIcon
                       icon={faKey}
                       className="px-1"
                       style={{ color: "orange" }}
                     ></FontAwesomeIcon>
-                    <strong>Cahange Password</strong>
+                    <strong>Change Password</strong>
                   </button>
                   <Link
                     className="dropdown-item"
@@ -379,7 +640,7 @@ const UserNavbar = (props) => {
               </div>
             )}
           </div>
-          
+
           <div className="flex-grow-1 bd-highlight">
             <Form className="d-flex" onSubmit={handleSearch}>
               <div className="input-group">
@@ -396,7 +657,10 @@ const UserNavbar = (props) => {
                     type="reset"
                     style={{ borderRadius: "0px" }}
                     id="clr-btn"
-                    onClick={() => {props.resetHawker();setRating(0)}}
+                    onClick={() => {
+                      props.resetHawker();
+                      setRating(0);
+                    }}
                   >
                     <FontAwesomeIcon
                       icon={faTimes}
@@ -415,9 +679,9 @@ const UserNavbar = (props) => {
             </Form>
           </div>
           <div className="bd-highlight">
-          <div className="dropdown">
+            <div className="dropdown">
               <button
-              data-offset="0,10"
+                data-offset="0,10"
                 className="btn btn-primary dropdown-toggle"
                 type="button"
                 id="dropdownMenuButton"
@@ -466,7 +730,6 @@ const UserNavbar = (props) => {
                   </li>
                   <li className="list-group-item d-flex justify-content-between align-items-center">
                     <label htmlFor="sp" style={{ cursor: "pointer" }}>
-                    
                       <strong>Service Provider</strong>
                     </label>
                     <span className="badge">
@@ -512,16 +775,19 @@ const UserNavbar = (props) => {
             </div>
           </div>
         </div>
-       
-        {
-          (rating && props.h.length>0)?(
-            <>
-              <button className="mybtns mybtn1 mr-3 sortBtn" onClick={sortRating}><FontAwesomeIcon icon={faStar}></FontAwesomeIcon>Sort By Rating</button>
-              <button className="mybtns mybtn2 mx-3 sortBtn" onClick={sortPrice}><FontAwesomeIcon icon={faInr}></FontAwesomeIcon>Sort By Price</button>
-            </>
-          ):<div></div>
-        }
-        
+
+        {rating && props.h.length > 0 ? (
+          <>
+            <button className="mybtns mybtn1 mr-3 sortBtn" onClick={sortRating}>
+              <FontAwesomeIcon icon={faStar}></FontAwesomeIcon>Sort By Rating
+            </button>
+            <button className="mybtns mybtn2 mx-3 sortBtn" onClick={sortPrice}>
+              <FontAwesomeIcon icon={faInr}></FontAwesomeIcon>Sort By Price
+            </button>
+          </>
+        ) : (
+          <div></div>
+        )}
       </div>
     </>
   );
