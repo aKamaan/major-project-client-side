@@ -309,16 +309,17 @@ const UserNavbar = (props) => {
           .then((result) => {
             setfpLoader(0);
             setfpModal(!setfpModal);
+            setMessg('Link sent to your email');
+            setColor('Green');
             settopAlert(1);
             setTimeout(()=>{
               settopAlert(0);
-            },2000);
+            },3000);
           }, (error) => {
               console.log(error.text);
           });
       }
       else{
-
         setfpLoader(0);
         setMessg(data.err);
         setColor('Red');
